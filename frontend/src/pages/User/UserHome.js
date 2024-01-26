@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {Navbar} from "../../components/Navbar";
 import { RestaurantCard } from "./RestaurantCard";
-import { NavbarRestaurant } from "../../components/NavbarRestaurant";
+import { NavbarRestaurant } from "../../components/Navbar_Restaurant";
 import Footer from "../../components/Footer";
 // import { FaHeart } from 'react-icons/fa';
 // import { FaFire } from 'react-icons/fa';
