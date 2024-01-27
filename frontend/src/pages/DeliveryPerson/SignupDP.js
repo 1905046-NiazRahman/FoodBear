@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axios from "axios"
 
-export const Signup =  () => {
+export const SignupDP = () => {
   const [credentials, setCredentials] = useState({
     name: "",
     location: "",
@@ -12,65 +12,71 @@ export const Signup =  () => {
     contact: "",
   });
 
-
   const validateCredentials = (credentials) => {
     const errors = [];
-  
-    if (credentials.name.length===0) {
+
+    if (credentials.name.length === 0) {
       errors.push("Name must not be empty");
     }
- 
-    if (credentials.location.length===0) {
-        errors.push("Location must not be empty");
-      }
-  
+
+    if (credentials.location.length === 0) {
+      errors.push("Location must not be empty");
+    }
+
     if (credentials.email.trim() === "") {
       errors.push("Email must not be empty");
-    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(credentials.email)) {
+    } else if (
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+        credentials.email
+      )
+    ) {
       errors.push("Invalid email address");
     }
-  
-    if (credentials.password.length<6) {
+
+    if (credentials.password.length < 6) {
       errors.push("Password should be atleast 6 characters long");
     }
-  
+
     return errors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validateCredentials(credentials);
+    const errors = validateCredentials(credentials)
 
-    if (errors.length > 0) {
-      alert(errors.join("\n"));
-      return;
+    if(errors.length>0){
+        alert(errors.join("\n"));
+        return
     }
 
-    const response = await axios.post("http://localhost:4010/api/userauth/signup", {
-        name: credentials.name,
-        location: credentials.location,
-        email: credentials.email,
-        password: credentials.password,
-        contact: credentials.contact,
-    
-    });
+    const response = await axios.post("http://localhost:4010/api/deliveryperson/signup", credentials);
 
-    if (response.status === 200) {
-        alert("Signup successful!");
-        window.location.href = "/login";
-      } else {
-        alert("Email already exists! Try again with another one.");
-      }
+    if(response.status ===200){
+      console.log("ok")
+        window.location.href = "/deliveryperson/login"
+    }
+    else{
+        alert("Email already exists!try again with another one")
+    }
+
   };
 
 
-    const onChange = (event) => {
-        setCredentials({...credentials, [event.target.name]: event.target.value})
-    };
+
+  const onChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
 
   return (
     <>
-      <div className="container" style={{ width: "600px", border: "1px solid white", margin:"10px auto"}}>
+      <div
+        className="container"
+        style={{
+          width: "600px",
+          border: "1px solid white",
+          margin: "10px auto",
+        }}
+      >
         <Form onSubmit={handleSubmit}>
           <h1 className="text-center mt-4">Signup</h1>
 
@@ -133,16 +139,18 @@ export const Signup =  () => {
             variant=" mb-2 mt-4"
             type="submit"
             className="d-block mx-auto"
-            style={{ color: "white" , backgroundColor: "#ff8a00"}}
+            style={{ color: "white", backgroundColor: "#ff8a00" }}
           >
             Submit
           </Button>
           <div className="text-center">
-            <Link to="/login">Already have an account? Login!</Link>
+            <Link to="/deliveryperson/login">
+              Already have an account? Login!
+            </Link>
           </div>
-          <br/>
+          <br />
         </Form>
       </div>
     </>
   );
-}
+};
