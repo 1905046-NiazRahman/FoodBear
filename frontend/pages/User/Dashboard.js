@@ -36,6 +36,8 @@ export const Dashboard_User = () => {
     fetchData();
   }, []);
 
+
+
   //Fetching orders of the user
   const [orders, setOrders] = useState([]);
   // const fetchOrders = async () => {
