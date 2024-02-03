@@ -4,6 +4,7 @@ import { Signup } from './pages/User/Signup';
 import {Dashboard_User} from "./pages/User/Dashboard"
 import { UserHome } from './pages/User/UserHome';
 import RestFoods_User from './pages/User/InsideRestaurant';
+import {MyCart} from "./pages/User/MyCart"
 import Foods from './pages/Restaurant/Foods';
 import { SignupDP } from './pages/DeliveryPerson/SignupDP';
 import { LoginDP } from './pages/DeliveryPerson/LoginDP';
@@ -30,6 +31,7 @@ function App() {
               <Route exact path="/user/dashboard" element={<Dashboard_User/>}/>
               <Route exact path="/user/restaurant" element={<UserHome/>}/>
               <Route exact path="/user/restaurant/foods" element={<RestFoods_User/>}/>
+              <Route exact path="/user/mycart" element={<MyCart/>}/>
 
               <Route exact path="/restaurant/signup" element={<SignupRes />} />
               <Route exact path="/restaurant/login" element={<LoginRes />} />

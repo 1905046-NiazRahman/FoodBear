@@ -25,7 +25,7 @@ export const Home = () => {
               <div>
                 <h2>
                   <span style={{ color: "orange" }}>Join</span>
-                  <span style={{ color: "white" }}> With Us</span>
+                  <span style={{ color: "black" }}> With Us</span>
                 </h2>
               </div>
             </Col>
