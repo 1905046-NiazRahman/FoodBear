@@ -62,7 +62,7 @@ export const RestaurantCard =(props)=> {
           <div className="d-flex flex-row justify-content-between">
             <h6 className="card-title">{props.name}</h6>
             <div style={{ fontSize: "16px", color: "#ff8a00" }}>
-              &#9733;{props.averageRating}
+              &#9733;{props.averageRating.toFixed(1)}
             </div>
           </div>
           <p className="card-text text-muted fs-10">{props.location}</p>

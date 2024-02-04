@@ -61,8 +61,8 @@ const loginDeliveryPerson = async (req, res) => {
         .status(404)
         .json({ errors: [{ message: "Email doesn't exist!" }] });
     }
-    const salt = fetchedData.salt;
-    const isMatched = bcrypt.compare(
+    const salt = await fetchedData.salt;
+    const isMatched = await bcrypt.compare(
       req.body.password,
       fetchedData.password,
       salt

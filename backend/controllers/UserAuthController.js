@@ -63,11 +63,12 @@ const loginUser = async (req,res) =>{
             return res.status(404).json({ errors: [{ message: "Email doesn't exist!" }]});
         }
 
-        const salt=fetchedData.salt
-        const isMatched=bcrypt.compare(req.body.password,fetchedData.password,salt)
-
+        const salt=await fetchedData.salt
+        const isMatched=await bcrypt.compare(req.body.password,fetchedData.password,salt)
+        
         if(!isMatched){
-            return res.status(400).json({ errors: [{ message: "Enter valid credentials!" }] });
+            
+            return res.json({success:false });
         }
 
         const data = {

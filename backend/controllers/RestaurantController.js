@@ -281,6 +281,84 @@ const updateStock = async (req, res) => {
   }
 };
 
+const getRating = async (req,res)=>{
+  try {
+    const restaurantId = req.params.restaurantId;
+
+    const restaurant = await RestaurantModel.findById(restaurantId);
+
+    res.json({ success: true, averageRating: restaurant.averageRating });
+  } catch (error) {
+    console.error('Error in /rate:', error);
+    res.json({ success: false, message: 'An error occurred' });
+  }
+}
+
+const getReview = async(req,res)=>{
+  try {
+    const restaurant = await RestaurantModel.findById(req.params.restaurantId);
+    // console.log(restaurant.reviews[24].username);
+    res.status(200).json({ success: true, reviews: restaurant.reviews });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'An error occurred' });
+  }
+}
+
+const setUserRating = async(req,res)=>{
+  try {
+    const restaurantId = req.params.restaurantId;
+    const { userId, rating } = req.body;
+
+    const restaurant = await RestaurantModel.findById(restaurantId);
+
+    // Remove existing rating by this user if any
+    restaurant.ratings = restaurant.ratings.filter(r => r.user.toString() !== userId);
+
+    // Add new rating
+    restaurant.ratings.push({ user: userId, rating });
+
+    // Recalculate the average rating
+    const totalRating = restaurant.ratings.reduce((acc, r) => acc + r.rating, 0);
+    restaurant.averageRating = totalRating / restaurant.ratings.length;
+
+    await restaurant.save();
+
+    res.json({ success: true, averageRating: restaurant.averageRating });
+  } catch (error) {
+    console.error('Error in /rate:', error);
+    res.json({ success: false, message: 'An error occurred' });
+  }
+}
+
+const setUserReview = async(req,res)=>{
+  const { userId, userName, review } = req.body;
+  const restaurantId = req.params.restaurantId;
+  // Validate data
+
+  // Update restaurant data
+  const restaurant = await RestaurantModel.findById(restaurantId);
+  if (!restaurant) {
+    return res.status(404).json({ success: false, message: 'Restaurant not found' });
+  }
+  
+  restaurant.reviews.push({ user: userId, username: userName, review ,date: Date.now()});
+  await restaurant.save();
+
+  return res.status(200).json({ success: true, message: 'Review successfully added' });
+}
+
+const getSpecificRestaurantRating = async(req,res)=>{
+  try {
+    const restaurant = await RestaurantModel.findById(req.params.id);
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+    return res.status(200).json(restaurant.ratings);
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
 module.exports = {
   signupRestaurant,
   loginRestaurant,
@@ -291,5 +369,10 @@ module.exports = {
   deleteFood,
   editFood,
   stockoutToggle,
-  updateStock
+  updateStock,
+  getRating,
+  getReview,
+  setUserRating,
+  setUserReview,
+  getSpecificRestaurantRating
 };

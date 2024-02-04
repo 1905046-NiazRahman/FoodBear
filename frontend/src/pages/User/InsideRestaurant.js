@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { RestaurantCard } from "./RestaurantCard";
+import Card from "./FoodCardUser";
 import { Navbar } from "../../components/Navbar";
 import { Row, Col } from "react-bootstrap";
 //import "bootstrap-icons/font/bootstrap-icons.css";
@@ -49,7 +49,7 @@ export default function ShowFoods_Restaurant() {
     //user will rate the restaurant
     const userId = localStorage.getItem("user_id");
     const response = await fetch(
-      `http://localhost:5001/api/restaurant/rating/${desired_restaurant_id}`,
+      `http://localhost:4010/api/restaurant/rating/${desired_restaurant_id}`,
       {
         method: "PUT",
         headers: {
@@ -74,7 +74,7 @@ export default function ShowFoods_Restaurant() {
   const fetchRating = async () => {
     //average rating will be fetched from the database
     const response = await fetch(
-      `http://localhost:5001/api/restaurant/rating/${desired_restaurant_id}`,
+      `http://localhost:4010/api/restaurant/rating/${desired_restaurant_id}`,
       {
         method: "GET",
         headers: {
@@ -105,7 +105,7 @@ export default function ShowFoods_Restaurant() {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/favorites/${userId}`
+        `http://localhost:4010/api/user/favorites/${userId}`
       );
       const data = await response.json();
       console.log("heree is the frontend part");
@@ -129,7 +129,7 @@ export default function ShowFoods_Restaurant() {
   const fetchRatings = async (restaurantId) => {
     try {
       const response = await fetch(
-        `http://localhost:5001/api/restaurant/${restaurantId}/ratings`
+        `http://localhost:4010/api/restaurant/${restaurantId}/ratings`
       );
       const data = await response.json();
       return data;
@@ -143,7 +143,7 @@ export default function ShowFoods_Restaurant() {
     const userId = localStorage.getItem("user_id");
     const userName = localStorage.getItem("user_name");
     const response = await fetch(
-      `http://localhost:5001/api/restaurant/review/${desired_restaurant_id}`,
+      `http://localhost:4010/api/restaurant/review/${desired_restaurant_id}`,
       {
         method: "PUT",
         headers: {
@@ -169,7 +169,7 @@ export default function ShowFoods_Restaurant() {
   // New function to fetch reviews
   const fetchReviews = async () => {
     const response = await fetch(
-      `http://localhost:5001/api/restaurant/review/${desired_restaurant_id}`
+      `http://localhost:4010/api/restaurant/review/${desired_restaurant_id}`
     );
     const data = await response.json();
     if (data.success) {
@@ -192,8 +192,8 @@ export default function ShowFoods_Restaurant() {
     const restaurantId = localStorage.getItem("restaurant_id");
 
     const url = isFavorite
-      ? "http://localhost:5001/api/favorites/remove"
-      : "http://localhost:5001/api/favorites/add";
+      ? "http://localhost:4010/api/user/favorites/remove"
+      : "http://localhost:4010/api/user/favorites/add";
     const payload = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -299,9 +299,9 @@ export default function ShowFoods_Restaurant() {
 
   useEffect(() => {
     fetchData();
-    //fetchRating();
-    //fetchReviews();
-    //fetchFavorites();
+    fetchRating();
+    fetchReviews();
+    fetchFavorites();
   }, []);
 
   useEffect(() => {
@@ -314,8 +314,8 @@ export default function ShowFoods_Restaurant() {
       const restaurant_id = localStorage.getItem("restaurant_id");
       const fetchedRatings = await fetchRatings(restaurant_id);
       console.log("ratings", fetchedRatings);
-      //setRatings(fetchedRatings);
-      //setRatingPercentages(calculateRatingPercentages(fetchedRatings));
+      setRatings(fetchedRatings);
+      setRatingPercentages(calculateRatingPercentages(fetchedRatings));
       console.log("rating percentage", ratingPercentages);
     };
 
@@ -350,39 +350,308 @@ export default function ShowFoods_Restaurant() {
     ? { transform: "scale(1.05)", transition: "transform 0.1s ease" }
     : {};
 
+
   return (
     <div>
       <div>
         <Navbar />
       </div>
 
-      <div>
-        {restaurants.map((restaurant) =>
-          restaurant._id === desired_restaurant_id ? (
-            <img
-              key={restaurant._id}
-              src={restaurant.img}
-              alt=""
-              height="400px"
-              width="100%"
-              style={{ objectFit: "cover" }}
-            />
-          ) : null
-        )}
-      </div>
+      <Row>
+        <Col
+          lg={12}
+          data-aos="fade-up"
+          data-aos-easing="ease-out"
+          data-aos-duration="700"
+          data-aos-delay="150"
+        >
+          <div>
+            {restaurants.map((restaurant) =>
+              restaurant._id === desired_restaurant_id ? (
+                <img
+                  key={restaurant._id}
+                  src={restaurant.img}
+                  alt=""
+                  height="400px"
+                  width="100%"
+                  style={{ objectFit: "cover" }}
+                />
+              ) : null
+            )}
+          </div>
+        </Col>
+      </Row>
 
       <div className="container">
         {restaurants.map((restaurant) =>
           restaurant._id === desired_restaurant_id ? (
-            <div
-              className="d-flex justify-content-between align-items-center"
-              key={restaurant._id}
-            >
-              <h2 className="mt-3">{restaurant.name}</h2>
-            </div>
+            <>
+              <div className="d-flex justify-content-between align-items-center">
+                <h2 className="mt-3">{restaurant.name}</h2>
+
+                {/* Average Rating Header */}
+                <div className="d-flex align-items-center">
+                  <h5 style={{ marginBottom: 0 }}>Average Rating: </h5>
+                  <span className="ms-2">{averageRating.toFixed(1)}</span>
+                  <div
+                    className="ms-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#ratingModal"
+                    style={{ cursor: "pointer" , ...hoverStyle }}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                  >
+                    {averageRating !== null && renderStars(averageRating)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Detailed Ratings Modal */}
+              <div
+                className="modal fade"
+                id="ratingModal"
+                tabIndex="-1"
+                aria-labelledby="ratingModalLabel"
+                aria-hidden="true"
+              >
+                <div className="modal-dialog modal-dialog-centered">
+                  <div className="modal-content" style={{ color: "black" }}>
+                    <div className="modal-header">
+                      <h5 className="modal-title" id="ratingModalLabel">
+                        Detailed Ratings
+                      </h5>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div className="modal-body">
+                      {Object.entries(ratingPercentages).map(
+                        ([star, percentage], index) => (
+                          <div
+                            className="d-flex align-items-center mb-2"
+                            key={index}
+                            style={index === 0 ? { marginLeft: "1.9px" } : {}}
+                          >
+                            <span
+                              className="mr-2"
+                              style={{ marginTop: "-2px", color: "#ff8a00" }}
+                            >
+                              <span style={{ color: "black" }}>
+                                {star}
+                              </span>
+
+                              <FaStar />
+                            </span>
+                            <div className="progress" style={{ width: "70%" }}>
+                              <div
+                                className="progress-bar"
+                                role="progressbar"
+                                style={{ width: `${percentage}%`, backgroundColor: "#ff8a00" }}
+                                aria-valuenow={percentage}
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                              ></div>
+                            </div>
+                            <span className="ml-2">{`${Math.round(
+                              percentage
+                            )}%`}</span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                    {/* <div className="modal-footer">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Close
+                      </button>
+                    </div> */}
+                  </div>
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-between align-items-center">
+                <h5>{restaurant.location}</h5>
+
+                {/* All Reviews */}
+                <a
+                  href="#"
+                  className="text-decoration-underline"
+                  style={{ color: "#ff8a00", marginTop: "-15px" }}
+                  data-bs-toggle="modal"
+                  data-bs-target="#reviewsModal"
+                >
+                  See Our Reviews
+                </a>
+              </div>
+
+              <div className="d-flex align-items-center justify-content-between mt-2">
+                {/* Favorite Button */}
+                <button
+                  onClick={toggleFavorite}
+                  className="btn"
+                  onMouseEnter={() => setIsHovered2(true)}
+                  onMouseLeave={() => setIsHovered2(false)}
+                  style={{
+                    color: "white",
+                    backgroundColor: isFavorite ? "#dc3545" : "#ff8a00",
+                    padding: "0px 4px",
+                    fontSize: "14px",
+                    borderRadius: "4px",
+                    height: "32px", // Increase the height
+                    border: "none",
+                    cursor: "pointer", ...hoverStyle2,
+                    boxShadow: "0px 8px 16px 0px rgba(1,1,1,0.2)",
+                  }}
+                >
+                  <i
+                    className={`bi ${isFavorite ? "bi-heart-fill" : "bi-heart"
+                      }`}
+                  ></i>
+                  {isFavorite ? " Remove from favorites" : " Add to favorites"}
+                </button>
+
+                {/* Rate and Review */}
+                {feedbackDisplayed ? (
+                  <div>Thanks for your feedback!</div>
+                ) : showRatingButtons ? (
+                  <div>
+                    {renderClickableStars()}{" "}
+                    {/* This will render clickable stars */}
+                  </div>
+                ) : (
+                  <>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <button
+                      onMouseEnter={() => setIsHovered3(true)}
+                      onMouseLeave={() => setIsHovered3(false)}
+                        onClick={() => setShowRatingButtons(true)}
+                        style={{
+                          backgroundColor: "#ff8a00",
+                          color: "white",
+                          padding: "4px 8px",
+                          fontSize: "14px",
+                          borderRadius: "4px",
+                          border: "none",
+                          cursor: "pointer", ...hoverStyle3,
+                          boxShadow: "0px 8px 16px 0px rgba(1,1,1,0.2)",
+                          color: "white",
+                          height: "32px", // Increase the height
+                        }}
+                      >
+                        Rate & Review Us!
+                      </button>
+
+                      {/* Review Modal */}
+                      <Modal show={showReviewModal} onHide={toggleReviewModal}>
+                        <Modal.Header closeButton>
+                          <Modal.Title>Write Your Review</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                          <textarea
+                            value={userReview}
+                            style={{ width: "100%", height: "70px" }}
+                            onChange={(e) => setUserReview(e.target.value)}
+                            placeholder="Write your review here"
+                          />
+                          {reviewSubmitted && <p>Thanks for your review!</p>}
+                        </Modal.Body>
+                        <Modal.Footer>
+                          <Button variant="danger" onClick={toggleReviewModal}>
+                            Close
+                          </Button>
+                          <Button
+                            style={{
+                              backgroundColor: "#ff8a00",
+                              border: "none",
+                            }}
+                            onClick={() => {
+                              handleReviewSubmit();
+                              toggleReviewModal();
+                            }}
+                          >
+                            Submit Review
+                          </Button>
+                        </Modal.Footer>
+                      </Modal>
+                    </div>
+
+                    {/* Reviews Modal */}
+                    <div
+                      className="modal fade"
+                      id="reviewsModal"
+                      tabIndex="-1"
+                      aria-labelledby="reviewsModalLabel"
+                      aria-hidden="true"
+                    >
+                      <div className="modal-dialog modal-dialog-scrollable modal-md">
+                        <div className="modal-content bg-light text-black">
+                          <div className="modal-header">
+                            <h4 className="modal-title" id="reviewsModalLabel">
+                              Our Reviews
+                            </h4>
+                            <button
+                              type="button"
+                              className="btn-close"
+                              data-bs-dismiss="modal"
+                              aria-label="Close"
+                            ></button>
+                          </div>
+                          <div className="modal-body">
+                            {reviews
+                              .sort(
+                                (a, b) => new Date(b.date) - new Date(a.date)
+                              )
+                              .map((review, index) => (
+                                <div
+                                  key={index}
+                                  style={{
+                                    backgroundColor: "white",
+                                    margin: "10px",
+                                    padding: "10px",
+                                    borderRadius: "5px",
+                                    boxShadow: "0px 2px 4px 0px rgba(0,0,0,0.2)",
+                                  }}
+                                >
+                                  <h6>
+                                    {index + 1}. {review.username}
+                                  </h6>
+                                  {/* <p>User ID: {review.user}</p> */}
+                                  <p style={{ fontSize: "15px" }}>
+                                    {" "}
+                                    {review.review}
+                                  </p>
+                                  <p style={{ fontSize: "0.8rem" }}>
+                                    {new Date(review.date).toLocaleString()}
+                                  </p>
+                                </div>
+                              ))}
+                          </div>
+                          <div className="modal-footer">
+                            <button
+                              type="button"
+                              className="btn btn-danger"
+                              data-bs-dismiss="modal"
+                            >
+                              Close
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
           ) : null
         )}
       </div>
+      <hr />
 
       <div className="container">
         {foodCategory ? (
@@ -405,14 +674,14 @@ export default function ShowFoods_Restaurant() {
                       key={foodItem._id}
                       className="col-12 col-md-6 col-lg-3"
                     >
-                      <RestaurantCard
+                      <Card
                         _id={foodItem._id}
                         restaurant_id={foodItem.restaurant_id}
                         name={foodItem.name}
                         img={foodItem.img}
                         CategoryName={foodItem.CategoryName}
                         price={foodItem.price}
-                      ></RestaurantCard>
+                      ></Card>
                     </div>
                   ))}
                 </div>
