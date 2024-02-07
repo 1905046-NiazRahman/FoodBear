@@ -10,7 +10,11 @@ export default function FoodCard_Restaurant(props) {
   };
 
   //fetching all foods
+
+
   const [foods, setFoods] = useState([]);
+
+  //working
   const fetchFoods = async () => {
     let response = await fetch("http://localhost:4010/api/foods", {
       method: "GET",
