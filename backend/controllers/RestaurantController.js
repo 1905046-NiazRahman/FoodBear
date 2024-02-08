@@ -37,7 +37,10 @@ const signupRestaurant = async (req, res) => {
       contact: req.body.contact,
       is_homekitchen: req.body.is_homekitchen,
       img: req.body.img,
+      latitude: req.body.latitude, // Add latitude
+      longitude: req.body.longitude, // Add longitude
     });
+    console.log(req.body.latitude+" "+req.body.longitude)
     res.status(200).json(newRestaurant);
   } catch (error) {
     console.log("error in signing up restu");
@@ -373,6 +376,17 @@ const getSpecificRestaurantRating = async(req,res)=>{
   }
 }
 
+const getSpecificRestaurant = async(req,res)=>{
+  try {
+    const restaurant = await RestaurantModel.findById(req.params.restaurantId);
+    res.send(restaurant);
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'An error occurred' });
+  }
+}
+
+
+
 module.exports = {
   signupRestaurant,
   loginRestaurant,
@@ -389,5 +403,6 @@ module.exports = {
   getReview,
   setUserRating,
   setUserReview,
-  getSpecificRestaurantRating
+  getSpecificRestaurantRating,
+  getSpecificRestaurant,
 };
