@@ -137,7 +137,7 @@ export const MyCart = () => {
   const handleDecreaseQuantity = async (foodItemId, user_id) => {
     try {
       const response = await fetch(
-        "http://localhost:4010/api/user/removefoodfromcart",
+        "http://localhost:4010/api/user/decreasefoodquantity",
         {
           method: "POST",
           headers: {
@@ -152,6 +152,7 @@ export const MyCart = () => {
       const data = await response.json();
       updateFoodCount(foodCount - 1);
       if (data.success) {
+        console.log("komse")
         setFoodItems((prevFoodItems) =>
           prevFoodItems.map((foodItem) =>
             foodItem.id === foodItemId && foodItem.quantity > 1
@@ -171,7 +172,7 @@ export const MyCart = () => {
   const handleDeleteQuantity = async (foodItemId, user_id) => {
     try {
       const response = await fetch(
-        "http://localhost:4010/api/user/removeallfoodfromcart",
+        "http://localhost:4010/api/user/deletespecificfoodfromcart",
         {
           method: "POST",
           headers: {
@@ -209,7 +210,7 @@ export const MyCart = () => {
 
   const handleOrder = async () => {
     try {
-      fetch("http://localhost:4010/api/orders/neworder", {
+      fetch("http://localhost:4010/api/order/user/orders/neworder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -227,7 +228,7 @@ export const MyCart = () => {
       console.error(error);
     }
 
-    await fetch("http://localhost:4010/api/user/removefromcart", {
+    await fetch("http://localhost:4010/api/user/deleteallfoodafterpayment", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

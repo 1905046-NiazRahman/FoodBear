@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import {Navbar} from "../../components/Navbar";
-import {RestaurantCard} from "./RestaurantCard";
-import {Footer} from "../../components/Footer";
-import { FaHeart } from 'react-icons/fa';
-import { FaFire } from 'react-icons/fa';
+import { Navbar } from "../../components/Navbar";
+import { RestaurantCard } from "./RestaurantCard";
+import { Footer } from "../../components/Footer";
+import { FaHeart } from "react-icons/fa";
+import { FaFire } from "react-icons/fa";
+import axios from "axios";
+import { Form, Button, Modal } from "react-bootstrap";
+import GoogleMap from "./Map";
 
-
-export const UserHome = ()=>{
+export const UserHome = () => {
   // Fetch data from /api/restaurants route
   const [restaurants, setRestaurants] = useState([]);
   const [homeKitchens, setHomeKitchens] = useState([]);
@@ -17,7 +19,7 @@ export const UserHome = ()=>{
 
   useEffect(() => {
     // This will log whenever favoriteRestaurants changes
-    console.log('Updated favoriteRestaurants:', favoriteRestaurants);
+    console.log("Updated favoriteRestaurants:", favoriteRestaurants);
   }, [favoriteRestaurants]);
 
   const [topRated, setTopRated] = useState([]);
@@ -30,20 +32,21 @@ export const UserHome = ()=>{
       headers: {
         "Content-Type": "application/json",
       },
-      
     });
     const data = await response.json();
     setRestaurants(data);
-    console.log("restaurants",data);
+    console.log("restaurants", data);
     // Sort the restaurants by ratings (assuming you have a ratings field)
-    const sortedByRating = [...data].sort((a, b) => b.averageRating - a.averageRating);
+    const sortedByRating = [...data].sort(
+      (a, b) => b.averageRating - a.averageRating
+    );
 
     // Take the top 5 (or however many you want) to show as most popular
     const topRated = sortedByRating.slice(0, 4);
-    console.log("Top-rated:", topRated);  // Debug line
+    console.log("Top-rated:", topRated); // Debug line
 
     setMostPopularRestaurants(topRated);
-    console.log("most popular",mostPopularRestaurants);
+    console.log("most popular", mostPopularRestaurants);
 
     const homeKitchens = data.filter((restaurant) => restaurant.is_homekitchen);
     const otherRests = data.filter((restaurant) => !restaurant.is_homekitchen);
@@ -53,16 +56,18 @@ export const UserHome = ()=>{
     setClosed(closed);
   };
   const fetchFavoriteRestaurants = async () => {
-    const userId = localStorage.getItem('user_id');
+    const userId = localStorage.getItem("user_id");
     try {
-      const response = await fetch(`http://localhost:4010/api/user/favorites/${userId}`);
+      const response = await fetch(
+        `http://localhost:4010/api/user/favorites/${userId}`
+      );
       const data = await response.json();
       console.log("the dataaa");
       // console.log(data);
 
       if (response.ok) {
         // // Filter the restaurants that are in the favorite list
-        // const favorites = restaurants.filter(r => 
+        // const favorites = restaurants.filter(r =>
         //   data.some(fav => fav._id === r._id)
         // );
         console.log(data);
@@ -76,12 +81,36 @@ export const UserHome = ()=>{
     }
   };
 
+  const [user, setUser] = useState(null);
+  const [latestLocation, setLatestLocation] = useState("");
 
+  const updateLatestLocation = async (LocationName)=>{
+    const userId = localStorage.getItem("user_id");
+    setLatestLocation(LocationName)
+    const res=await axios.put(`http://localhost:4010/api/user/updateLocation/${userId}`,
+      {
+        location:LocationName
+      }
+    )
+    console.log(res)
+  }
+  const fetchUser = async () => {
+    const userId = localStorage.getItem("user_id");
+    try {
+      const response = await axios.get(
+        `http://localhost:4010/api/user/${userId}`
+      );
+      setUser(response.data);
+      setLatestLocation(response.data.location);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     fetchData();
     fetchFavoriteRestaurants();
-    // fetchUser();
+    fetchUser();
   }, []);
 
   // Search
@@ -137,23 +166,33 @@ export const UserHome = ()=>{
         )
       );
     }
-
   }, [search, restaurants, topRated]);
-  
+
   useEffect(() => {
     const newFoodCount = localStorage.getItem("food_count");
     setFoodCount(newFoodCount);
   }, [localStorage.getItem("food_count")]);
 
+
+
+  const [showMapModal, setShowMapModal] = useState(false);
+
+  const handleShowMapModal = () => setShowMapModal(true); // Should set it to true
+  const handleCloseMapModal = () => setShowMapModal(false); // Should set it to false
+  
+
+
   return (
     <div>
       <Navbar />
 
-      <div className="container" style={{
-        position: "relative",
-        top: "100px",
-      }}>
-
+      <div
+        className="container"
+        style={{
+          position: "relative",
+          top: "100px",
+        }}
+      >
         <input
           className="form-control mt-2"
           type="search"
@@ -169,11 +208,32 @@ export const UserHome = ()=>{
             fontSize: "1.2rem", // Increase the font-size
           }}
         />{" "}
-
-
+        <br />
+        <div className="d-flex align-items-center mb-2">
+          <button
+            className="btn btn-primary me-2"
+            style={{
+              background: "#ff8a00",
+              border: "1px solid #ff8a00",
+              fontSize: ".9rem",
+              display: "flex",
+              alignItems: "center",
+              outline: "none",
+            }}
+            onClick={handleShowMapModal}
+          >
+            <i className="fa-solid fa-location-dot"></i>
+          </button>
+          <p className="m-0">
+            <strong>{user && latestLocation}</strong>
+          </p>
+        </div>
         {favoriteRestaurants.length > 0 && (
           <div className="row mt-4">
-            <h4><FaHeart style={{ color: "#dc3545" , marginTop: "-5px"}} /> My Favourites</h4>
+            <h4>
+              <FaHeart style={{ color: "#dc3545", marginTop: "-5px" }} /> My
+              Favourites
+            </h4>
             <hr />
             {favoriteRestaurants.slice(0, 4).map((restaurant) => (
               <div key={restaurant._id} className="col-12 col-md-6 col-lg-3">
@@ -189,14 +249,16 @@ export const UserHome = ()=>{
             ))}
           </div>
         )}
-
         {/* Most Popular Restaurants */}
         {mostPopularRestaurants.length > 0 && (
           <div className="row mt-4">
-            <h4><FaFire style={{ color: 'orange' , marginTop: "-10px"}} /> Most Popular</h4>
+            <h4>
+              <FaFire style={{ color: "orange", marginTop: "-10px" }} /> Most
+              Popular
+            </h4>
             <hr />
             {mostPopularRestaurants
-              .filter(restaurant => restaurant.is_open) // Only include restaurants that are open
+              .filter((restaurant) => restaurant.is_open) // Only include restaurants that are open
               .map((restaurant) => (
                 <div key={restaurant._id} className="col-12 col-md-6 col-lg-3">
                   <RestaurantCard
@@ -211,7 +273,6 @@ export const UserHome = ()=>{
               ))}
           </div>
         )}
-
         {homeKitchens.length > 0 && (
           <div className="row mt-4">
             <h4>Home Kitchens</h4>
@@ -270,8 +331,33 @@ export const UserHome = ()=>{
             ))}
           </div>
         )}
+        <Modal />
+
+        <Modal show={showMapModal} onHide={handleCloseMapModal}>
+        <Modal.Header>
+          <Modal.Title>Select your Location</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <GoogleMap updateLocationName={updateLatestLocation}/>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={handleCloseMapModal}
+            style={{
+              color: "white",
+              backgroundColor: "#ff8a00",
+              border: "1px solid #ff8a00",
+              outline: "none",
+            }}
+          >
+            Done
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
         <Footer />
       </div>
     </div>
   );
-}
+};
