@@ -176,6 +176,7 @@ const deliverOrder = async(req,res)=>{
     }
     return res.status(200).json({ message: "order status changed: delivered" });
   } catch (error) {
+    
     console.error("Error changing order status:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
