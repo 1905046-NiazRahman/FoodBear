@@ -85,6 +85,34 @@ const getFood = async(req,res)=>{
   }
 }
 
+const decreaseSpecificFoodQuantity = async (req,res) => {
+  try {
+    const cart = await CartModel.deleteOne({ user_id: req.body.user_id, food_id: req.body.food_id });
+    console.log(cart)
+    res.json(cart);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const deleteSpecificFoodFromCart = async (req,res) => {
+  try {
+    const cart = await CartModel.deleteMany({ user_id: req.body.user_id, food_id: req.body.food_id });
+    res.json(cart);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const deleteAllFromCartAfterPayemnt = async (req,res) => {
+  try {
+    const cart = await CartModel.deleteMany({ user_id: req.body.user_id });
+    res.json(cart);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 const addFavourite = async(req,res)=>{
   try {
     const { userId, restaurantId } = req.body;
@@ -149,6 +177,35 @@ const getFavourite = async (req,res)=>{
     }
 }
 
+const updateUserLocation = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    // Find the user by userId
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user's location with the new location provided in the request body
+    user.location = req.body.location;
+    console.log(user.location)
+
+    // Save the updated user object
+    await user.save();
+
+    // Send a success response
+    res.status(200).json({ message: "User location updated successfully" });
+  } catch (error) {
+    console.error("Error updating user location:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+
 module.exports = {
     showDashboard,
     getAllRestaurant,
@@ -157,5 +214,9 @@ module.exports = {
     addFavourite,
     removeFavourite,
     getFavourite,
-    getFood
+    getFood,
+    decreaseSpecificFoodQuantity,
+    deleteSpecificFoodFromCart,
+    deleteAllFromCartAfterPayemnt,
+    updateUserLocation
 };

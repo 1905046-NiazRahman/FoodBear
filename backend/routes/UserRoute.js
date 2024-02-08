@@ -20,6 +20,14 @@ router.route("/getcart")
 router.route("/getfood")
       .post(controllers.getFood)
 
+//cart handlig
+router.route("/decreasefoodquantity")
+      .post(controllers.decreaseSpecificFoodQuantity)
+router.route("/deletespecificfoodfromcart")
+      .post(controllers.deleteSpecificFoodFromCart)
+router.route("/deleteallfoodafterpayment")
+      .post(controllers.deleteAllFromCartAfterPayemnt)
+
 router.route("/favorites/add")
       .post(controllers.addFavourite)
 router.route("/favorites/remove")
@@ -28,6 +36,7 @@ router.route("/favorites/:userId")
       .get(controllers.getFavourite)
 
 
-
+router.route("/updateLocation/:userId")
+      .put(controllers.updateUserLocation)
 
 module.exports = router; 
