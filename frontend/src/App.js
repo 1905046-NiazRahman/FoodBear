@@ -13,11 +13,13 @@ import {LoginRes} from './pages/Restaurant/LoginRes'
 import {DashboardRes} from "./pages/Restaurant/DashboardRes"
 import { UserContextProvider } from './contexts/UserContext';
 import {Home} from "./pages/Home"
+import RestaurantSalesPage from "./pages/Restaurant/Statistics"
 import  {BrowserRouter as Router,
   Routes,
   Route
 } from "react-router-dom"
 import { DashboardDP } from './pages/DeliveryPerson/DashboardDP';
+import GoogleMap from './pages/User/Map';
 
 function App() {
   return (
@@ -36,10 +38,13 @@ function App() {
               <Route exact path="/restaurant/signup" element={<SignupRes />} />
               <Route exact path="/restaurant/login" element={<LoginRes />} />
               <Route exact path="/restaurant/foods" element={<Foods />} />
+              <Route exact path="/restaurant/statistics" element={<RestaurantSalesPage />} />
               <Route exact path="/restaurant/dashboard" element={<DashboardRes />} />
               <Route exact path="/deliveryperson/signup" element={<SignupDP />} />
               <Route exact path="/deliveryperson/login" element={<LoginDP />} />
               <Route exact path="/deliveryperson/dashboard" element={<DashboardDP />} />
+              <Route exact path="/test" element={<GoogleMap />} />
+
             </Routes>
           </div>
         </Router>
