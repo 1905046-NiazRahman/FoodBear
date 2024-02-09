@@ -3,9 +3,13 @@ import { NavbarDP } from "../../components/NavbarDP";
 import { Footer } from "../../components/Footer";
 import OrderCard_DP from "../../components/OrderCardDp";
 import axios from "axios";
+import { Form, Button, Modal } from "react-bootstrap";
+import GoogleMap from "../../components/Map";
+
 export const DashboardDP = () => {
   const [delivery_persons, setDeliveryPersons] = useState([]);
   const [isAvailable, setIsAvailable] = useState(true);
+  const [locationName, setLocationName] = useState("");
 
   const fetchAllDeliveryPersons = async (req, res) => {
     let response = await axios.get(
@@ -16,6 +20,7 @@ export const DashboardDP = () => {
     delivery_persons.map((singleDP) => {
       if (singleDP._id === localStorage.getItem("deliveryperson_id")) {
         setIsAvailable(singleDP.is_available);
+        setLocationName(singleDP.location);
       }
     });
   };
@@ -33,7 +38,6 @@ export const DashboardDP = () => {
 
       if (response.status === 200) {
         setIsAvailable(!isAvailable);
-        console.log("is available updated ok");
       }
     } catch (error) {
       console.log("error is available updating");
@@ -42,7 +46,44 @@ export const DashboardDP = () => {
 
   useEffect(() => {
     fetchAllDeliveryPersons();
-  }, []);
+  }, [locationName]);
+
+
+
+
+  const [showMapModal, setShowMapModal] = useState(false);
+
+  const handleShowMapModal = () => setShowMapModal(true); // Should set it to true
+  const handleCloseMapModal = () => setShowMapModal(false); // Should set it to false
+
+  const updateLatestLocation = async (
+    LocationName,
+    latitudeVal,
+    longitudeVal
+  ) => {
+    setLocationName(LocationName);
+    console.log("hhhhhh")
+    console.log(latitudeVal)
+    if(latitudeVal!==null && longitudeVal!==null){
+    const response = await axios.put(
+      `http://localhost:4010/api/deliveryperson/location/${localStorage.getItem(
+        "deliveryperson_id"
+      )}`,
+      { location: LocationName, latitude:latitudeVal, longitude:longitudeVal }
+    );
+    console.log("ei j ",response.data);
+    
+    }
+
+  };
+
+  // useEffect to watch for changes in location state
+  useEffect(() => {
+    // Call updateLatestLocation whenever latestLocation changes
+    if (locationName !== "") {
+      fetchAllDeliveryPersons();
+    }
+  }, [locationName]);
 
   //Order management part
   //Completed orders and active orders
@@ -63,14 +104,13 @@ export const DashboardDP = () => {
     );
 
     response = await response.json();
-    console.log("response", response);
 
     const complete = response.filter((order) => order.status === "delivered");
     setCompletedOrders(complete);
 
     const active = response.filter((order) => order.status !== "delivered");
     setActiveOrders(active);
-    console.log(activeOrders);
+    
   };
 
   useEffect(() => {
@@ -123,6 +163,18 @@ export const DashboardDP = () => {
                         <label className="form-check-label" htmlFor="is_open">
                           Available Now
                         </label>
+
+                        <button
+                          className="btn btn-primary ms-3" // Add proper class for button design
+                          onClick={handleShowMapModal} // Add appropriate onClick function
+                          style={{
+                            background: "#ff8a00",
+                            border: "1px solid #ff8a00",
+                            outline: "none",
+                          }}
+                        >
+                          Update Location
+                        </button>
                       </div>
                     </div>
 
@@ -146,7 +198,7 @@ export const DashboardDP = () => {
                         </tr>
                       </tbody>
                     </table>
-                    
+
                     <div className="row lg-6">
                       {/* Active Order gula show korsi */}
                       {sortedActiveOrders.length > 0 && (
@@ -200,7 +252,6 @@ export const DashboardDP = () => {
                         </div>
                       )}
                     </div>
-
                   </div>
                 </div>
               </div>
@@ -208,6 +259,30 @@ export const DashboardDP = () => {
           }
         })}
       </div>
+
+      <Modal />
+        <Modal show={showMapModal} onHide={handleCloseMapModal}>
+          <Modal.Header>
+            <Modal.Title>Select your Location</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <GoogleMap updateLocationName={updateLatestLocation} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={handleCloseMapModal}
+              style={{
+                color: "white",
+                backgroundColor: "#ff8a00",
+                border: "1px solid #ff8a00",
+                outline: "none",
+              }}
+            >
+              Done
+            </Button>
+          </Modal.Footer>
+        </Modal>
     </div>
   );
 };

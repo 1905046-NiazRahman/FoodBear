@@ -6,7 +6,7 @@ import { FaHeart } from "react-icons/fa";
 import { FaFire } from "react-icons/fa";
 import axios from "axios";
 import { Form, Button, Modal } from "react-bootstrap";
-import GoogleMap from "./Map";
+import GoogleMap from "../../components/Map";
 
 export const UserHome = () => {
   // Fetch data from /api/restaurants route
@@ -17,6 +17,11 @@ export const UserHome = () => {
   const [mostPopularRestaurants, setMostPopularRestaurants] = useState([]);
   const [favoriteRestaurants, setFavoriteRestaurants] = useState([]);
 
+  const [user, setUser] = useState(null);
+  const [latestLocation, setLatestLocation] = useState("");
+  const [userLatitude, setUserLatitude] = useState(null);
+  const [userLongitude, setUserLongitude] = useState(null);
+
   useEffect(() => {
     // This will log whenever favoriteRestaurants changes
     console.log("Updated favoriteRestaurants:", favoriteRestaurants);
@@ -24,6 +29,28 @@ export const UserHome = () => {
 
   const [topRated, setTopRated] = useState([]);
   const [closed, setClosed] = useState([]);
+
+  const degreesToRadians = (degrees) => {
+    return (degrees * Math.PI) / 180;
+  };
+
+  //Haversine formula
+  const calculateDistance = (point1, point2) => {
+    const earthRadiusKm = 6371; // Radius of the Earth in kilometers
+    const dLat = degreesToRadians(point2.latitude - point1.latitude);
+    const dLon = degreesToRadians(point2.longitude - point1.longitude);
+
+    const lat1 = degreesToRadians(point1.latitude);
+    const lat2 = degreesToRadians(point2.latitude);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    console.log("radius " + earthRadiusKm * c);
+    return earthRadiusKm * c; // Distance in kilometers
+  };
 
   // Fetch restaurant data
   const fetchData = async () => {
@@ -34,19 +61,68 @@ export const UserHome = () => {
       },
     });
     const data = await response.json();
-    setRestaurants(data);
+
+    //will do the work of fetching restu (with distance )
+    const filteredRestaurants = data.filter((restaurant) => {
+      // Calculate distance between restaurant and user's location
+      const restaurantLocation = {
+        latitude: restaurant.latitude,
+        longitude: restaurant.longitude,
+      };
+
+      const userId = localStorage.getItem("user_id");
+      const latitudeUser = localStorage.getItem(userId + "_lat");
+      const longitudeUser = localStorage.getItem(userId + "_long");
+
+      const userLocation = {
+        latitude: latitudeUser,
+        longitude: longitudeUser,
+      };
+      const distance = calculateDistance(restaurantLocation, userLocation); // Implement a function to calculate distance
+
+      // Return true if distance is less than 4km
+      return distance <= 4;
+    });
+
+    console.log("restu with lat long", filteredRestaurants);
+
+    setRestaurants(filteredRestaurants);
     console.log("restaurants", data);
-    // Sort the restaurants by ratings (assuming you have a ratings field)
-    const sortedByRating = [...data].sort(
-      (a, b) => b.averageRating - a.averageRating
-    );
 
-    // Take the top 5 (or however many you want) to show as most popular
-    const topRated = sortedByRating.slice(0, 4);
-    console.log("Top-rated:", topRated); // Debug line
+    const fetchOrdersForRestaurant = async (restaurantId) => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4010/api/order/restaurant/orders/${restaurantId}`
+        );
+        const orders = response.data;
+        console.log("order len : ", orders.length);
+        return orders.length;
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        return 0; // Return 0 if there's an error
+      }
+    };
 
-    setMostPopularRestaurants(topRated);
-    console.log("most popular", mostPopularRestaurants);
+    // Define a function to calculate popularity based on orders count
+    const calculatePopularity = async () => {
+      const popularRestaurants = [];
+
+      for (const restaurant of filteredRestaurants) {
+        const ordersCount = await fetchOrdersForRestaurant(restaurant._id);
+        if (restaurant.averageRating >= 4 && ordersCount >= 10) {
+          popularRestaurants.push(restaurant);
+        }
+      }
+
+      // Take the top 5 (or however many you want) to show as most popular
+      const topRated = popularRestaurants.slice(0, 4); // Change to slice(0, 5) if you want top 5
+      console.log("Top-rated:", topRated); // Debug line
+      // Take the top 4 (or however many you want) to show as most popular
+      setMostPopularRestaurants(topRated);
+      console.log("most popular", mostPopularRestaurants);
+    };
+
+    calculatePopularity();
 
     const homeKitchens = data.filter((restaurant) => restaurant.is_homekitchen);
     const otherRests = data.filter((restaurant) => !restaurant.is_homekitchen);
@@ -57,12 +133,13 @@ export const UserHome = () => {
   };
   const fetchFavoriteRestaurants = async () => {
     const userId = localStorage.getItem("user_id");
+
     try {
       const response = await fetch(
         `http://localhost:4010/api/user/favorites/${userId}`
       );
       const data = await response.json();
-      console.log("the dataaa");
+
       // console.log(data);
 
       if (response.ok) {
@@ -70,8 +147,30 @@ export const UserHome = () => {
         // const favorites = restaurants.filter(r =>
         //   data.some(fav => fav._id === r._id)
         // );
-        console.log(data);
-        setFavoriteRestaurants(data);
+
+        //will do the work of fetching restu (with distance )
+        const filteredRestaurants = data.filter((restaurant) => {
+          // Calculate distance between restaurant and user's location
+          const restaurantLocation = {
+            latitude: restaurant.latitude,
+            longitude: restaurant.longitude,
+          };
+
+          const userId = localStorage.getItem("user_id");
+          const latitudeUser = localStorage.getItem(userId + "_lat");
+          const longitudeUser = localStorage.getItem(userId + "_long");
+
+          const userLocation = {
+            latitude: latitudeUser,
+            longitude: longitudeUser,
+          };
+          const distance = calculateDistance(restaurantLocation, userLocation); // Implement a function to calculate distance
+
+          // Return true if distance is less than 4km
+          return distance <= 4;
+        });
+
+        setFavoriteRestaurants(filteredRestaurants);
         console.log(favoriteRestaurants);
       } else {
         console.log("Error fetching favorites:", data.message);
@@ -81,19 +180,35 @@ export const UserHome = () => {
     }
   };
 
-  const [user, setUser] = useState(null);
-  const [latestLocation, setLatestLocation] = useState("");
+  useEffect(()=>{
+    fetchFavoriteRestaurants()
+  },[latestLocation])
 
-  const updateLatestLocation = async (LocationName)=>{
+  const updateLatestLocation = async (
+    LocationName,
+    latitudeVal,
+    longitudeVal
+  ) => {
     const userId = localStorage.getItem("user_id");
-    setLatestLocation(LocationName)
-    const res=await axios.put(`http://localhost:4010/api/user/updateLocation/${userId}`,
+    setLatestLocation(LocationName);
+    if (userId) {
+      localStorage.removeItem(userId + "_lat");
+      localStorage.removeItem(userId + "_long");
+    }
+    localStorage.setItem(userId + "_lat", latitudeVal);
+    localStorage.setItem(userId + "_long", longitudeVal);
+    const res = await axios.put(
+      `http://localhost:4010/api/user/updateLocation/${userId}`,
       {
-        location:LocationName
+        location: LocationName,
+        latitude: latitudeVal,
+        longitude: longitudeVal,
       }
-    )
-    console.log(res)
-  }
+    );
+
+    console.log(res);
+  };
+
   const fetchUser = async () => {
     const userId = localStorage.getItem("user_id");
     try {
@@ -102,15 +217,25 @@ export const UserHome = () => {
       );
       setUser(response.data);
       setLatestLocation(response.data.location);
+      setUserLatitude(response.data.latitude);
+      setUserLongitude(response.data.longitude);
+
+      // Store latitude and longitude in local storage
+      localStorage.setItem(userId + "_lat", response.data.latitude);
+      localStorage.setItem(userId + "_long", response.data.longitude);
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    fetchData();
-    fetchFavoriteRestaurants();
-    fetchUser();
+    const fetchDataAndUser = () => {
+      fetchUser();
+      fetchData();
+      fetchFavoriteRestaurants();
+    };
+
+    fetchDataAndUser();
   }, []);
 
   // Search
@@ -173,14 +298,36 @@ export const UserHome = () => {
     setFoodCount(newFoodCount);
   }, [localStorage.getItem("food_count")]);
 
-
-
   const [showMapModal, setShowMapModal] = useState(false);
 
   const handleShowMapModal = () => setShowMapModal(true); // Should set it to true
   const handleCloseMapModal = () => setShowMapModal(false); // Should set it to false
-  
 
+  // useEffect to watch for changes in location state
+  useEffect(() => {
+    // Call updateLatestLocation whenever latestLocation changes
+    if (latestLocation !== "") {
+      fetchData();
+    }
+  }, [latestLocation]);
+
+  const calculatePropDistance = (restaurant)=>{
+    const restaurantLocation = {
+      latitude: restaurant.latitude,
+      longitude: restaurant.longitude,
+    };
+
+    const userId = localStorage.getItem("user_id");
+    const latitudeUser = localStorage.getItem(userId + "_lat");
+    const longitudeUser = localStorage.getItem(userId + "_long");
+
+    const userLocation = {
+      latitude: latitudeUser,
+      longitude: longitudeUser,
+    };
+    const distance = calculateDistance(restaurantLocation, userLocation);
+    return distance
+  }
 
   return (
     <div>
@@ -236,6 +383,7 @@ export const UserHome = () => {
             </h4>
             <hr />
             {favoriteRestaurants.slice(0, 4).map((restaurant) => (
+              
               <div key={restaurant._id} className="col-12 col-md-6 col-lg-3">
                 <RestaurantCard
                   _id={restaurant._id}
@@ -244,6 +392,7 @@ export const UserHome = () => {
                   location={restaurant.location}
                   averageRating={restaurant.averageRating}
                   is_open={restaurant.is_open}
+                  distance={calculatePropDistance(restaurant)}
                 />
               </div>
             ))}
@@ -268,6 +417,7 @@ export const UserHome = () => {
                     location={restaurant.location}
                     averageRating={restaurant.averageRating}
                     is_open={restaurant.is_open}
+                    distance={calculatePropDistance(restaurant)}
                   />
                 </div>
               ))}
@@ -288,6 +438,7 @@ export const UserHome = () => {
                     location={restaurant.location}
                     averageRating={restaurant.averageRating}
                     is_open={restaurant.is_open}
+                    distance={calculatePropDistance(restaurant)}
                   />
                 </div>
               ))}
@@ -308,6 +459,7 @@ export const UserHome = () => {
                     location={restaurant.location}
                     averageRating={restaurant.averageRating}
                     is_open={restaurant.is_open}
+                    distance={calculatePropDistance(restaurant)}
                   />
                 </div>
               ))}
@@ -326,36 +478,35 @@ export const UserHome = () => {
                   location={restaurant.location}
                   averageRating={restaurant.averageRating}
                   is_open={restaurant.is_open}
+                  distance={calculatePropDistance(restaurant)}
                 />
               </div>
             ))}
           </div>
         )}
         <Modal />
-
         <Modal show={showMapModal} onHide={handleCloseMapModal}>
-        <Modal.Header>
-          <Modal.Title>Select your Location</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <GoogleMap updateLocationName={updateLatestLocation}/>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={handleCloseMapModal}
-            style={{
-              color: "white",
-              backgroundColor: "#ff8a00",
-              border: "1px solid #ff8a00",
-              outline: "none",
-            }}
-          >
-            Done
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
+          <Modal.Header>
+            <Modal.Title>Select your Location</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <GoogleMap updateLocationName={updateLatestLocation} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={handleCloseMapModal}
+              style={{
+                color: "white",
+                backgroundColor: "#ff8a00",
+                border: "1px solid #ff8a00",
+                outline: "none",
+              }}
+            >
+              Done
+            </Button>
+          </Modal.Footer>
+        </Modal>
         <Footer />
       </div>
     </div>
