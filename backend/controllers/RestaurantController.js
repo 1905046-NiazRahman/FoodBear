@@ -364,6 +364,7 @@ const setUserReview = async(req,res)=>{
   return res.status(200).json({ success: true, message: 'Review successfully added' });
 }
 
+
 const getSpecificRestaurantRating = async(req,res)=>{
   try {
     const restaurant = await RestaurantModel.findById(req.params.id);
