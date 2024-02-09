@@ -7,6 +7,7 @@ import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import { FaStar } from "react-icons/fa";
 
+
 export default function ShowFoods_Restaurant() {
   const [foods, setFoodItems] = useState([]);
   const [foodCategory, setFoodCategory] = useState([]);
