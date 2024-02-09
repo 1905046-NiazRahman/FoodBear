@@ -12,10 +12,12 @@ const getFoods = async(req,res)=>{
       res.send(food);
     } catch (error) {
       console.log(error);
-      
+
       return res.json({ success: false });
     }
 }
+
+
 
 
 const placeUserOrder = async(req,res)=>{
