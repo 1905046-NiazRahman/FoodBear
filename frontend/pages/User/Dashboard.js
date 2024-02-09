@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {Navbar} from "../../components/Navbar";
-// import OrderCard from "../../components/OrderCard";
+import OrderCard from "../../components/OrderCardUser";
 import {Footer} from "../../components/Footer";
 import { Modal } from "react-bootstrap";
 import axios from "axios";
@@ -40,56 +40,57 @@ export const Dashboard_User = () => {
 
   //Fetching orders of the user
   const [orders, setOrders] = useState([]);
-  // const fetchOrders = async () => {
-  //   let response = await fetch(
-  //     `http://localhost:5000/api/user/orders/${localStorage.getItem(
-  //       "user_id"
-  //     )}`,
-  //     {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     }
-  //   );
+  const fetchOrders = async () => {
+    let response = await fetch(
+      `http://localhost:4010/api/order/user/orders/${localStorage.getItem(
+        "user_id"
+      )}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-  //   response = await response.json();
-  //   setOrders(response);
-  //   console.log(orders);
-  // };
+    response = await response.json();
+    console.log("here in ",response)
+    setOrders(response);
+    console.log(orders);
+  };
 
-  // useEffect(() => {
-  //   fetchOrders();
-  // }, []);
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   //Completed orders and active orders
   const [completedOrders, setCompletedOrders] = useState([]);
   const [activeOrders, setActiveOrders] = useState([]);
 
-//   const fetchCompletedOrders = async () => {
-//     let response = await fetch(
-//       `http://localhost:5000/api/user/orders/${localStorage.getItem(
-//         "user_id"
-//       )}`,
-//       {
-//         method: "GET",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
+  const fetchCompletedOrders = async () => {
+    let response = await fetch(
+      `http://localhost:4010/api/order/user/orders/${localStorage.getItem(
+        "user_id"
+      )}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-//     response = await response.json();
-//     const complete = response.filter((order) => order.status === "delivered");
-//     setCompletedOrders(complete);
+    response = await response.json();
+    const complete = response.filter((order) => order.status === "delivered");
+    setCompletedOrders(complete);
 
-//     const active = response.filter((order) => order.status !== "delivered");
-//     setActiveOrders(active);
-//   };
+    const active = response.filter((order) => order.status !== "delivered");
+    setActiveOrders(active);
+  };
 
-//   useEffect(() => {
-//     fetchCompletedOrders();
-//   }, []);
+  useEffect(() => {
+    fetchCompletedOrders();
+  }, []);
 
 // //sorting orders by date
 const sortedActiveOrders = activeOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -104,6 +105,7 @@ const sortedCompletedOrders = completedOrders.sort((a, b) => new Date(b.date) - 
           <div className="d-flex flex-row justify-content-between">
             <h2>{user.name}</h2>
           </div>
+          
 
           <table className="table table-hover">
             <tbody>
@@ -137,7 +139,7 @@ const sortedCompletedOrders = completedOrders.sort((a, b) => new Date(b.date) - 
                     key={order._id}
                     className="col-12 col-md-6 col-lg-6 mb-3"
                   >
-                    {/* <OrderCard
+                    <OrderCard
                       _id={order._id}
                       user_id={order.user_id}
                       restaurant_id={order.restaurant_id}
@@ -147,11 +149,12 @@ const sortedCompletedOrders = completedOrders.sort((a, b) => new Date(b.date) - 
                       total_price={order.total_price}
                       date={order.date}
                       payment_method={order.payment_method}
-                    /> */}
+                    />
                   </div>
                 ))}
               </div>
             )}
+            
 
             {/* Completed Order gula show korsi */}
             {sortedCompletedOrders.length > 0 && (
@@ -163,7 +166,7 @@ const sortedCompletedOrders = completedOrders.sort((a, b) => new Date(b.date) - 
                     key={order._id}
                     className="col-12 col-md-6 col-lg-6 mb-3"
                   >
-                    {/* <OrderCard
+                    <OrderCard
                       _id={order._id}
                       user_id={order.user_id}
                       restaurant_id={order.restaurant_id}
@@ -173,7 +176,7 @@ const sortedCompletedOrders = completedOrders.sort((a, b) => new Date(b.date) - 
                       total_price={order.total_price}
                       date={order.date}
                       payment_method={order.payment_method}
-                    /> */}
+                    />
                   </div>
                 ))}
               </div>
