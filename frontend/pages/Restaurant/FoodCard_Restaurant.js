@@ -4,7 +4,6 @@ import { Form } from "react-bootstrap";
 export default function (props) {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  
   const handleDelete = () => {
     setShowConfirmModal(true);
   };
