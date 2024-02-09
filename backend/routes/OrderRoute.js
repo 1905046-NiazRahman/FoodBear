@@ -15,7 +15,7 @@ router.route("/user/foods")
       .get(controllers.getAllOrderedFoods)
 //restaurant portion
 router.route("/restaurant/orders/:restaurantId")
-      .get(controllers.getSpecificRestaurantOrder)
+      .get(controllers.getSpecificRestaurantOrder) //this will also be used for order count
 router.route("/restaurant/deleteorder/:orderId")
       .delete(controllers.rejectOrder)
 router.route("/restaurant/orders/confirmorder/:orderId/:deliverypersonId")
