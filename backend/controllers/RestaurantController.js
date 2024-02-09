@@ -386,7 +386,6 @@ const getSpecificRestaurant = async(req,res)=>{
 }
 
 
-
 module.exports = {
   signupRestaurant,
   loginRestaurant,
