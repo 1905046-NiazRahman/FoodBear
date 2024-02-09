@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Card from "./FoodCardUser";
 import { Navbar } from "../../components/Navbar";
 import { Row, Col } from "react-bootstrap";
-//import "bootstrap-icons/font/bootstrap-icons.css";
+
 import { Modal, Button } from "react-bootstrap";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import { FaStar } from "react-icons/fa";
