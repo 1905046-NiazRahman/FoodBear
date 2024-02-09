@@ -56,6 +56,7 @@ export default function EditFoodModal({ show, onHide, food }) {
               onChange={(e) => handleFieldChange('price', e.target.value)}
             />
           </Form.Group>
+          
           {/* Add more Form.Group elements for other fields */}
         </Form>
       </Modal.Body>
