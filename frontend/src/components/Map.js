@@ -23,7 +23,7 @@ const GoogleMap = ({ updateLocationName }) => {
       if (results && results.length > 0) {
         setLocationName(results[0].formatted_address);
         updateLocationName(results[0].formatted_address,lat,lng);
-        console.log(latitude+" "+longitude+" checking")
+        //console.log(latitude+" "+longitude+" checking")
       }
     } catch (error) {
       console.error("Error fetching location name:", error);
