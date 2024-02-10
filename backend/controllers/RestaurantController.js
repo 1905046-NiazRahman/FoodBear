@@ -287,7 +287,6 @@ async function updateFoodStock(foodId, newStockStatus, restaurantId) {
   }
 }
 
-
 const updateStock = async (req, res) => {
   try {
     const { foodId, restaurantId } = req.params;
@@ -365,7 +364,6 @@ const setUserReview = async(req,res)=>{
   return res.status(200).json({ success: true, message: 'Review successfully added' });
 }
 
-
 const getSpecificRestaurantRating = async(req,res)=>{
   try {
     const restaurant = await RestaurantModel.findById(req.params.id);
@@ -386,6 +384,7 @@ const getSpecificRestaurant = async(req,res)=>{
     res.status(500).json({ success: false, message: 'An error occurred' });
   }
 }
+
 
 
 module.exports = {

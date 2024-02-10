@@ -12,13 +12,9 @@ const getFoods = async(req,res)=>{
       res.send(food);
     } catch (error) {
       console.log(error);
-
       return res.json({ success: false });
     }
 }
-
-
-
 
 const placeUserOrder = async(req,res)=>{
   received_food_items= []
@@ -175,13 +171,11 @@ const deliverOrder = async(req,res)=>{
       status: "delivered",
     });
 
-    
     if (!deliveredOrder) {
       return res.status(404).json({ message: "Order not found" });
     }
     return res.status(200).json({ message: "order status changed: delivered" });
   } catch (error) {
-    
     console.error("Error changing order status:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
