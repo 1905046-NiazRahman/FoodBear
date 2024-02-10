@@ -287,6 +287,7 @@ async function updateFoodStock(foodId, newStockStatus, restaurantId) {
   }
 }
 
+
 const updateStock = async (req, res) => {
   try {
     const { foodId, restaurantId } = req.params;
