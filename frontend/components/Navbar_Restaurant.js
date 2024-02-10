@@ -75,6 +75,17 @@ export default function () {
                   Menu
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link fs-5 ${
+                    location.pathname === "/restaurant/statistics" ? "active" : ""
+                  }`}
+                  to="/restaurant/statistics"
+                  style={{ color: location.pathname === "/restaurant/statistics" ? 'orange' : 'white' }}
+                >
+                  Statistics
+                </Link>
+              </li>
             </ul>
 
             {localStorage.getItem("restaurant_id") ? (
