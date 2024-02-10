@@ -142,6 +142,12 @@ export const Navbar = () => {
                   onClick={() => {
                     localStorage.removeItem("authToken");
                     localStorage.removeItem("user_id");
+                    const userId = localStorage.getItem("user_id");
+                    if (userId) {
+                      localStorage.removeItem(userId + "_lat");
+                      localStorage.removeItem(userId + "_long");
+                    }
+                  
                     window.location.href = "/";
                   }}
                 >
