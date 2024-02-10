@@ -179,6 +179,7 @@ const getFavourite = async (req,res)=>{
 
 const updateUserLocation = async (req, res) => {
   const userId = req.params.userId;
+  const { location, latitude, longitude } = req.body;
 
   try {
     // Find the user by userId
@@ -189,8 +190,9 @@ const updateUserLocation = async (req, res) => {
     }
 
     // Update user's location with the new location provided in the request body
-    user.location = req.body.location;
-    console.log(user.location)
+    user.location = location;
+    user.latitude = latitude; // Update latitude
+    user.longitude = longitude; // Update longitude
 
     // Save the updated user object
     await user.save();
@@ -202,6 +204,7 @@ const updateUserLocation = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 
