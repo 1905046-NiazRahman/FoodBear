@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const RestaurantSchema = new Schema({
+    latitude: {
+        type: Number,
+        required: false,
+    },
+    longitude: {
+        type: Number,
+        required: false,
+    },
     name: {
         type: String,
         required: true,
@@ -58,7 +66,8 @@ const RestaurantSchema = new Schema({
     hasStock: {
         type: Boolean,
         default: true,
-      }
+      },
+      
 });
 
 module.exports = mongoose.model("restaurants", RestaurantSchema);
