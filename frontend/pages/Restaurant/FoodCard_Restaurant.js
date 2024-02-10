@@ -3,7 +3,6 @@ import { Form } from "react-bootstrap";
 
 export default function (props) {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
   const handleDelete = () => {
     setShowConfirmModal(true);
   };
@@ -145,6 +144,32 @@ export default function (props) {
     handleStockAndRestaurantStatusToggle();
   }, [isInStock]);
 
+  //Add offer
+  const [showAddOfferModal, setShowAddOfferModal] = useState(false);
+  const [newOffer, setNewOffer] = useState({
+    // Initialize state for the new offer fields
+    offercatagory: "",
+    discount: "",
+  });
+
+  const handleAddOfferChange = (event) => {
+    setNewOffer({ ...newOffer, [event.target.name]: event.target.value });
+  };
+
+  const handleAddOfferSubmit = async () => {
+    try {
+      // Make a fetch request to add the offer
+      // This would be similar to the fetch request in handleEditSubmit
+      // Include the new offer data in the request body
+      console.log("Adding offer:", newOffer);
+      // After successfully adding the offer, close the modal
+      setShowAddOfferModal(false);
+    } catch (error) {
+      console.error("Error adding offer:", error);
+    }
+  };
+
+
   return (
     <div>
       <div
@@ -184,7 +209,7 @@ export default function (props) {
             </label>
           </div>
 
-          <div className="d-flex flex-row justify-content mt-1">
+          <div className="d-flex flex-row justify-content-end mt-3">
             <button
               type="button"
               className="btn btn-outline-danger btn-sm"
@@ -200,6 +225,15 @@ export default function (props) {
               onClick={() => setShowEditModal(true)}
             >
               Edit
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-outline-success btn-sm mr-4"
+              style={{ marginLeft: "25px" }}
+              onClick={() => setShowAddOfferModal(true)}
+            >
+              Add Offer
             </button>
           </div>
         </div>
@@ -320,6 +354,67 @@ export default function (props) {
                   onClick={handleEditSubmit} // Create this function
                 >
                   Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* JSX for the Add Offer modal */}
+      {showAddOfferModal && (
+        <div
+          className="modal fade show"
+          tabIndex="-1"
+          role="dialog"
+          style={{ display: "block", background: "rgba(0, 0, 0, 0.7)" }}
+        >
+          {/* Modal content goes here */}
+          {/* Similar to the Edit modal, create a modal with input fields for adding an offer */}
+          {/* Include input fields for offer description and discount */}
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3 className="modal-title" id="AddOfferModalLabel">Add Offer</h3>
+              </div>
+              <div className="modal-body">
+                <Form>
+                  <Form.Group className="mb-3" controlId="offercatagory">
+                    <Form.Label>Offer Catagory</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Offer Catagory"
+                      name="offercatagory"
+                      value={newOffer.offercatagory}
+                      onChange={handleAddOfferChange}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3" controlId="offerDiscount">
+                    <Form.Label>Discount</Form.Label>
+                    <Form.Control
+                      type="number"
+                      placeholder="Offer Discount"
+                      name="discount"
+                      value={newOffer.discount}
+                      onChange={handleAddOfferChange}
+                    />
+                  </Form.Group>
+                </Form>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-danger btn-sm"
+                  onClick={() => setShowAddOfferModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success btn-sm"
+                  onClick={handleAddOfferSubmit}
+                >
+                  Add Offer
                 </button>
               </div>
             </div>

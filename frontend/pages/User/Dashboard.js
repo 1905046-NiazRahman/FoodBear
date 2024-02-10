@@ -105,7 +105,6 @@ const sortedCompletedOrders = completedOrders.sort((a, b) => new Date(b.date) - 
           <div className="d-flex flex-row justify-content-between">
             <h2>{user.name}</h2>
           </div>
-          
 
           <table className="table table-hover">
             <tbody>
@@ -154,7 +153,6 @@ const sortedCompletedOrders = completedOrders.sort((a, b) => new Date(b.date) - 
                 ))}
               </div>
             )}
-            
 
             {/* Completed Order gula show korsi */}
             {sortedCompletedOrders.length > 0 && (

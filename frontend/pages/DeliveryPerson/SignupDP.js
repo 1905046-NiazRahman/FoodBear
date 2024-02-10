@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Modal } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import axios from "axios"
+import axios from "axios";
+import GoogleMap from "../../components/Map";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 
 export const SignupDP = () => {
   const [credentials, setCredentials] = useState({
@@ -10,7 +13,24 @@ export const SignupDP = () => {
     email: "",
     password: "",
     contact: "",
+    latitude: null,
+    longitude: null,
   });
+
+  const [showMapModal, setShowMapModal] = useState(false);
+
+  const handleShowMapModal = () => setShowMapModal(true);
+  const handleCloseMapModal = () => setShowMapModal(false);
+
+  const updateLocationName = (LocationName, latitudeVal, longitudeVal) => {
+    console.log(LocationName + " here dp");
+    setCredentials({
+      ...credentials,
+      location: LocationName,
+      latitude: latitudeVal,
+      longitude: longitudeVal,
+    });
+  };
 
   const validateCredentials = (credentials) => {
     const errors = [];
@@ -42,26 +62,25 @@ export const SignupDP = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validateCredentials(credentials)
+    const errors = validateCredentials(credentials);
 
-    if(errors.length>0){
-        alert(errors.join("\n"));
-        return
+    if (errors.length > 0) {
+      alert(errors.join("\n"));
+      return;
     }
 
-    const response = await axios.post("http://localhost:4010/api/deliveryperson/signup", credentials);
+    const response = await axios.post(
+      "http://localhost:4010/api/deliveryperson/signup",
+      credentials
+    );
 
-    if(response.status ===200){
-      console.log("ok")
-        window.location.href = "/deliveryperson/login"
+    if (response.status === 200) {
+      console.log("ok");
+      window.location.href = "/deliveryperson/login";
+    } else {
+      alert("Email already exists!try again with another one");
     }
-    else{
-        alert("Email already exists!try again with another one")
-    }
-
   };
-
-
 
   const onChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -93,13 +112,18 @@ export const SignupDP = () => {
 
           <Form.Group className="mb-3" controlId="formBasicLocation">
             <Form.Label>Location</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter Location"
-              name="location"
-              value={credentials.location}
-              onChange={onChange}
-            />
+            <div className="input-group">
+              <Form.Control
+                type="text"
+                placeholder="Enter Location"
+                name="location"
+                value={credentials.location}
+                onChange={onChange}
+              />
+              <Button variant="outline-secondary" onClick={handleShowMapModal}>
+                <FontAwesomeIcon icon={faMapMarkerAlt} />
+              </Button>
+            </div>
           </Form.Group>
 
           <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -151,6 +175,30 @@ export const SignupDP = () => {
           <br />
         </Form>
       </div>
+
+      {/* GoogleMap Modal */}
+      <Modal show={showMapModal} onHide={handleCloseMapModal}>
+        <Modal.Header>
+          <Modal.Title>Select your Location</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <GoogleMap updateLocationName={updateLocationName} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={handleCloseMapModal}
+            style={{
+              color: "white",
+              backgroundColor: "#ff8a00",
+              border: "1px solid #ff8a00",
+              outline: "none",
+            }}
+          >
+            Done
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
