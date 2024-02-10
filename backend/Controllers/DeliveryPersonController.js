@@ -42,6 +42,8 @@ const signupDeliveryPerson = async (req, res) => {
       email: req.body.email,
       password: hashedPassword,
       contact: req.body.contact,
+      latitude: req.body.latitude, // Add latitude
+      longitude: req.body.longitude, // Add longitude
     });
     res.status(200).json(newDeliveryPerson);
   } catch (error) {
@@ -119,6 +121,7 @@ const isAvailableDeliveryPerson = async (req,res) =>{
     }
 
     deliveryperson.is_available= !deliveryperson.is_available
+    console.log(deliveryperson.is_available)
 
     //saving to database
     await deliveryperson.save()
@@ -131,9 +134,35 @@ const isAvailableDeliveryPerson = async (req,res) =>{
   }
 } 
 
+const updateLocationDeliveryPerson = async (req, res) => {
+  const { dpId } = req.params;
+  const { location,latitude, longitude } = req.body;
+
+  try {
+    const deliveryPerson = await DeliveryPersonModel.findById(dpId);
+
+    if (!deliveryPerson) {
+      return res.status(404).json({ message: "Delivery person not found" });
+    }
+    console.log(location,latitude,longitude)
+    deliveryPerson.location=location
+    deliveryPerson.latitude = latitude;
+    deliveryPerson.longitude = longitude;
+
+    await deliveryPerson.save();
+
+    return res.status(200).json({ message: "Location updated successfully" });
+  } catch (error) {
+    console.error("Error updating location:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 module.exports = {
   signupDeliveryPerson,
   loginDeliveryPerson,
   dashboardDeliveryPerson,
-  isAvailableDeliveryPerson
+  isAvailableDeliveryPerson,
+  updateLocationDeliveryPerson
 };

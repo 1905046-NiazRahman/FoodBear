@@ -26,6 +26,14 @@ const DeliveryPersonSchema = new Schema({
         type: Boolean,
         default: true,
     },
+    latitude: {
+        type: Number,
+        required: false,
+    },
+    longitude: {
+        type: Number,
+        required: false,
+    }
 
 });
 
