@@ -26,7 +26,7 @@ const FoodSchema = new Schema({
         type: Boolean,
         default: true,
     },
-
+    
 });
 
 module.exports = mongoose.model("foods", FoodSchema);
