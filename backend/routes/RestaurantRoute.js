@@ -22,13 +22,4 @@ router.route("/fooditems/stockout/:foodId")
       .put(controllers.stockoutToggle)
 router.route("/updateStock/:foodId/:restaurantId")
       .put(controllers.updateStock)
-router.route("/rating/:restaurantId")
-      .get(controllers.getRating)
-      .put(controllers.setUserRating)
-router.route("/review/:restaurantId")
-      .get(controllers.getReview)
-      .put(controllers.setUserReview)
-router.route("/:id/ratings")
-      .get(controllers.getSpecificRestaurantRating)
-
 module.exports = router;
