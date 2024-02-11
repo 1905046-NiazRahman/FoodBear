@@ -161,7 +161,6 @@ const AddFoodModal = ({ show, onHide, onSubmit }) => {
               <option value="Thai Cuisine">Thai Cuisine</option>
               <option value="Vegetable Dishes">Vegetable Dishes</option>
               <option value="Vegetarian/Vegan">Vegetarian/Vegan</option>
-              
             </Form.Select>
             <Form.Control
               type="text"
