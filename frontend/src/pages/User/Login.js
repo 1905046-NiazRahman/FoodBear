@@ -43,7 +43,6 @@ export const Login = () => {
       alert(errors.join("\n"));
       return;
     }
-    
 
     const response = await axios.post("http://localhost:4010/api/userauth/login", {
         email: credentials.email,
@@ -51,7 +50,7 @@ export const Login = () => {
     
     });
 
-    console.log(response.data)
+    console.log(response.data.success)
 
     if (!response.data.success) {
       alert("Invalid credentials");
