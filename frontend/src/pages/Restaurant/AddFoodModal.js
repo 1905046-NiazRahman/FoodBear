@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import axios from "axios";
+
 const AddFoodModal = ({ show, onHide, onSubmit }) => {
   const [food, setFood] = useState({
     name: "",
-    CategoryName: "",
+    CategoryName: "", // Changed to CategoryName
     price: "",
     img: "",
   });
@@ -49,7 +50,7 @@ const AddFoodModal = ({ show, onHide, onSubmit }) => {
       "http://localhost:4010/api/restaurant/addfood",
       {
         name: food.name,
-        CategoryName: food.CategoryName,
+        CategoryName: food.CategoryName, // Pass CategoryName
         price: food.price,
         img: food.img,
         restaurant_id: localStorage.getItem("restaurant_id"),
@@ -78,12 +79,96 @@ const AddFoodModal = ({ show, onHide, onSubmit }) => {
           </Form.Group>
           <Form.Group controlId="CategoryName">
             <Form.Label>Category</Form.Label>
+            <Form.Select
+              onChange={onChange}
+              name="CategoryName"
+              value={food.CategoryName}
+            >
+              <option value="">Select Category</option>
+              <option value="Asian Cuisine">Asian Cuisine</option>
+              <option value="Aloo Gobi">Aloo Gobi</option>
+              <option value="Bakery Items">Bakery Items</option>
+              <option value="Barbecue">Barbecue</option>
+              <option value="BBQ">BBQ</option>
+              <option value="Beef Dishes">Beef Dishes</option>
+              <option value="Bhaji">Bhaji</option>
+              <option value="Bhuna">Bhuna</option>
+              <option value="Biryani">Biryani</option>
+              <option value="Burgers">Burgers</option>
+              <option value="Chapatis">Chapatis</option>
+              <option value="Chingri">Chingri</option>
+              <option value="Chutneys">Chutneys</option>
+              <option value="Coffee">Coffee</option>
+              <option value="Coffee/Tea">Coffee/Tea</option>
+              <option value="Comfort Food">Comfort Food</option>
+              <option value="Curries">Curries</option>
+              <option value="Dal">Dal</option>
+              <option value="Desserts">Desserts</option>
+              <option value="Dopiaza">Dopiaza</option>
+              <option value="Fast Food">Fast Food</option>
+              <option value="Fish Dishes">Fish Dishes</option>
+              <option value="Fried Chicken">Fried Chicken</option>
+              <option value="Health/Superfoods">Health/Superfoods</option>
+              <option value="Hot Dogs">Hot Dogs</option>
+              <option value="Ice Cream/Gelato">Ice Cream/Gelato</option>
+              <option value="Indian Cuisine">Indian Cuisine</option>
+              <option value="Italian Cuisine">Italian Cuisine</option>
+              <option value="Jalebi">Jalebi</option>
+              <option value="Juices">Juices</option>
+              <option value="Kebabs">Kebabs</option>
+              <option value="Khichri">Khichri</option>
+              <option value="Khichuri">Khichuri</option>
+              <option value="Kofta">Kofta</option>
+              <option value="Korean Cuisine">Korean Cuisine</option>
+              <option value="Korma">Korma</option>
+              <option value="Lassis">Lassis</option>
+              <option value="Lemonade">Lemonade</option>
+              <option value="Mexican Cuisine">Mexican Cuisine</option>
+              <option value="Middle Eastern Cuisine">
+                Middle Eastern Cuisine
+              </option>
+              <option value="Mixed Vegetables">Mixed Vegetables</option>
+              <option value="Mutton Dishes">Mutton Dishes</option>
+              <option value="Naan">Naan</option>
+              <option value="Pakora">Pakora</option>
+              <option value="Paneer Dishes">Paneer Dishes</option>
+              <option value="Paratha">Paratha</option>
+              <option value="Pastries">Pastries</option>
+              <option value="Pasta">Pasta</option>
+              <option value="Pitha">Pitha</option>
+              <option value="Pizza">Pizza</option>
+              <option value="Prawn Dishes">Prawn Dishes</option>
+              <option value="Puri">Puri</option>
+              <option value="Raita">Raita</option>
+              <option value="Rice Dishes">Rice Dishes</option>
+              <option value="Rogan Josh">Rogan Josh</option>
+              <option value="Salad">Salad</option>
+              <option value="Salads">Salads</option>
+              <option value="Sandwiches">Sandwiches</option>
+              <option value="Saag">Saag</option>
+              <option value="Samosas">Samosas</option>
+              <option value="Seafood">Seafood</option>
+              <option value="Smoothies/Juices">Smoothies/Juices</option>
+              <option value="Soft Drinks">Soft Drinks</option>
+              <option value="Soups">Soups</option>
+              <option value="Steaks">Steaks</option>
+              <option value="Street Food">Street Food</option>
+              <option value="Sushi">Sushi</option>
+              <option value="Sweets">Sweets</option>
+              <option value="Tacos">Tacos</option>
+              <option value="Tandoori">Tandoori</option>
+              <option value="Tea">Tea</option>
+              <option value="Thai Cuisine">Thai Cuisine</option>
+              <option value="Vegetable Dishes">Vegetable Dishes</option>
+              <option value="Vegetarian/Vegan">Vegetarian/Vegan</option>
+            </Form.Select>
             <Form.Control
               type="text"
-              placeholder="Enter food category"
+              placeholder="Or type your category"
               name="CategoryName"
               value={food.CategoryName}
               onChange={onChange}
+              style={{ marginTop: "5px" }}
             />
           </Form.Group>
           <Form.Group controlId="price">
@@ -106,14 +191,10 @@ const AddFoodModal = ({ show, onHide, onSubmit }) => {
               onChange={onChange}
             />
           </Form.Group>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-success btn-sm"
-              onClick={handleAddSubmit}
-            >
+          <div className="modal-footer">
+            <Button variant="success" size="sm" onClick={handleAddSubmit}>
               Add food
-            </button>
+            </Button>
           </div>
         </Form>
       </Modal.Body>
