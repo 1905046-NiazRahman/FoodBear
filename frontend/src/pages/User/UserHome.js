@@ -10,6 +10,7 @@ import GoogleMap from "../../components/Map";
 
 export const UserHome = () => {
   // Fetch data from /api/restaurants route
+  
   const [restaurants, setRestaurants] = useState([]);
   const [homeKitchens, setHomeKitchens] = useState([]);
   const [otherRestaurants, setOtherRestaurants] = useState([]);
@@ -133,6 +134,21 @@ export const UserHome = () => {
   };
   const fetchFavoriteRestaurants = async () => {
     const userId = localStorage.getItem("user_id");
+    
+    const latitudeUser = localStorage.getItem(userId + "_lat");
+    const longitudeUser = localStorage.getItem(userId + "_long");
+    await axios
+    .post("http://localhost:4010/api/distance/currentUser/setLocation", {
+      userLat: latitudeUser,
+      userLng: longitudeUser,
+    })
+    .then((response) => {
+      console.log("ooooo vai")
+      console.log(response.data);
+    })
+    .catch((error) => {
+      console.error("Error posting location data", error);
+    });
 
     try {
       const response = await fetch(
@@ -328,6 +344,9 @@ export const UserHome = () => {
     const distance = calculateDistance(restaurantLocation, userLocation);
     return distance
   }
+
+
+  
 
   return (
     <div>
