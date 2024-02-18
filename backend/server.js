@@ -26,6 +26,7 @@ app.use("/api/restaurant",require("./routes/RestaurantRoute"))
 app.use("/api/deliveryperson",require("./routes/DeliveryPersonRoute"))
 app.use('/api/user', require("./routes/UserRoute"));
 app.use('/api/order', require("./routes/OrderRoute"));
+app.use('/api/distance', require("./routes/DistanceRoute"));
 
 app.listen(PORT,()=>{
     console.log(`PORT NO : ${PORT}`.blue.bold.italic)
