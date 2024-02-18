@@ -71,7 +71,20 @@ export const DashboardDP = () => {
       )}`,
       { location: LocationName, latitude:latitudeVal, longitude:longitudeVal }
     );
+
     console.log("ei j ",response.data);
+
+    axios
+    .post("http://localhost:4010/api/distance/currentDp/setLocation", {
+      dpLat: latitudeVal,
+      dpLng: longitudeVal,
+    })
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) => {
+      console.error("Error posting location data", error);
+    });
     
     }
 
