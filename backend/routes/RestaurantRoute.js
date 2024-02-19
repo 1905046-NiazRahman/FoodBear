@@ -37,5 +37,3 @@ router.route("/:restaurantId")
 
 
 module.exports = router;
-1
-2
