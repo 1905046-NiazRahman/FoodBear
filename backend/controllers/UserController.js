@@ -221,5 +221,6 @@ module.exports = {
     decreaseSpecificFoodQuantity,
     deleteSpecificFoodFromCart,
     deleteAllFromCartAfterPayemnt,
-    updateUserLocation
+    updateUserLocation,
+  
 };
