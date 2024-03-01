@@ -117,12 +117,14 @@ export const CartCard = (props) => {
               <button
                 className="btn btn-sm"
                 style={{ backgroundColor: "transparent", border: "none" }}
-                onClick={() =>
+                onClick={() =>{
                   props.handleDeleteQuantity(
                     props.id,
                     localStorage.getItem("user_id")
                   )
+                  props.handleVoucherRemove()
                 }
+              }
               >
                 <FontAwesomeIcon
                   icon={faTrash}
