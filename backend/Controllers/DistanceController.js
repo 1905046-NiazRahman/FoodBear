@@ -14,6 +14,8 @@ const postUserLocation = async (req, res) => {
       message: "User location data saved successfully",
       data: locationData,
     });
+
+    
   } catch (error) {
     res.status(500).json({
       message: "Error saving user location data",
