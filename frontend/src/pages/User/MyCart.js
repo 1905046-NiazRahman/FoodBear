@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import {Navbar} from "../../components/Navbar";
-import {CartCard} from "../../components/CartCard";
-import {Footer} from "../../components/Footer";
+import { Navbar } from "../../components/Navbar";
+import { CartCard } from "../../components/CartCard";
+import { Footer } from "../../components/Footer";
 
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../../contexts/UserContext";
-import axios from "axios";
+import axios, { toFormData } from "axios";
 
+import Modal from "react-bootstrap/Modal"; // import Modal component
+import Button from "react-bootstrap/Button"; // import Button component
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -20,26 +22,14 @@ export const MyCart = () => {
   const [cartData, setCartData] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const { foodCount, updateFoodCount } = useContext(UserContext);
+  const [offeredFoods, setOfferedFoods] = useState([]);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const fetchData = async () => {
-      const received_cart = await fetch("http://localhost:4010/api/user/getcart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: localStorage.getItem("user_id"),
-        }),
-      });
-      const received_cart_json = await received_cart.json();
-      updateFoodCount(received_cart_json.length);
-
-      localStorage.removeItem("food_count");
-      try {
-        // Fetch cart_data
-        const cartResponse = await fetch("http://localhost:4010/api/user/getcart", {
+      const received_cart = await fetch(
+        "http://localhost:4010/api/user/getcart",
+        {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -47,7 +37,35 @@ export const MyCart = () => {
           body: JSON.stringify({
             user_id: localStorage.getItem("user_id"),
           }),
-        });
+        }
+      );
+      const received_cart_json = await received_cart.json();
+      updateFoodCount(received_cart_json.length);
+
+      localStorage.removeItem("food_count");
+
+      //console.log(localStorage.getItem("restaurant_id"));
+      const offerfoodRes = await axios.get(
+        `http://localhost:4010/api/restaurant/offer/${localStorage.getItem(
+          "restaurant_id"
+        )}`
+      );
+      setOfferedFoods(offerfoodRes.data);
+
+      try {
+        // Fetch cart_data
+        const cartResponse = await fetch(
+          "http://localhost:4010/api/user/getcart",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_id: localStorage.getItem("user_id"),
+            }),
+          }
+        );
 
         const cartData = await cartResponse.json();
         setCartData(cartData);
@@ -71,29 +89,44 @@ export const MyCart = () => {
         let totalPrice = 0;
 
         foodResults.forEach((foodItem) => {
+          // Check if the food item is in the offeredFoods array
+          const offeredFood = offeredFoods.find(
+            (offeredFoodItem) => offeredFoodItem.foodId === foodItem._id
+          );
+
+          // If it is, use the discounted price, otherwise use the regular price
+          const price = offeredFood
+            ? Math.floor(Number(offeredFood.offeredPrice))
+            : Math.floor(Number(foodItem.price));
+
           if (!uniqueFoodItems[foodItem._id]) {
             uniqueFoodItems[foodItem._id] = {
               id: foodItem._id,
               name: foodItem.name,
               type: foodItem.CategoryName,
               quantity: 1,
-              price: Number(foodItem.price),
+              price: price,
             };
           } else {
             uniqueFoodItems[foodItem._id].quantity += 1;
           }
-          totalPrice += Number(foodItem.price);
+          totalPrice += price;
         });
 
         // Convert the object into an array of unique food items
         const uniqueFoodItemsArray = Object.values(uniqueFoodItems);
 
         setFoodItems(uniqueFoodItemsArray);
-        console.log("checkin changes");
-        foodItems.forEach((foodItem) => {
-          console.log(foodItem);
-        });
-        setTotalPrice(totalPrice);
+        // console.log("checkin changes");
+        // foodItems.forEach((foodItem) => {
+        //   console.log(foodItem);
+        // });
+
+        if (localStorage.getItem("discount") !== null) {
+          const discount = parseFloat(localStorage.getItem("discount"));
+          totalPrice = totalPrice - (discount / 100) * totalPrice;
+        }
+        setTotalPrice(Math.floor(totalPrice));
       } catch (err) {
         console.error(err);
       }
@@ -152,7 +185,7 @@ export const MyCart = () => {
       const data = await response.json();
       updateFoodCount(foodCount - 1);
       if (data.success) {
-        console.log("komse")
+        console.log("komse");
         setFoodItems((prevFoodItems) =>
           prevFoodItems.map((foodItem) =>
             foodItem.id === foodItemId && foodItem.quantity > 1
@@ -223,6 +256,7 @@ export const MyCart = () => {
           payment_method: payment_method,
         }),
       });
+      localStorage.removeItem("discount");
       navigate("/user/dashboard");
     } catch (error) {
       console.error(error);
@@ -238,8 +272,96 @@ export const MyCart = () => {
       }),
     });
     updateFoodCount(0);
-    
   };
+
+  const [showVoucherModal, setShowVoucherModal] = useState(false); // State to control the visibility of the modal
+  const [voucherCode, setVoucherCode] = useState(""); // State to store the voucher code
+  const [voucherError, setVoucherError] = useState(""); // State to store error messages
+  const [voucherMessage, setVoucherMessage] = useState("");
+
+  useEffect(() => {
+    // Perform your action here
+    console.log(totalPrice);
+    setTotalPrice(totalPrice);
+  }, [totalPrice]);
+
+  // Function to handle voucher submission
+  const [isVoucherApplied, setIsVoucherApplied] = useState(false);
+
+  const handleVoucherRemove = async () => {
+    setIsVoucherApplied(false);
+    const response = await axios.get(
+      `http://localhost:4010/api/voucher/getvoucher/${localStorage.getItem(
+        "restaurant_id"
+      )}`
+    );
+    const voucher = response.data[0];
+    const userId = localStorage.getItem("user_id");
+    const user = voucher.users.find((user) => user.user_id === userId);
+    if(user.usage > 0) user.usage -= 1;
+    await axios.put(
+      `http://localhost:4010/api/voucher/updatevoucher/${voucher._id}`,
+      {
+        users: voucher.users,
+      }
+    );
+    localStorage.removeItem("discount");
+  };
+  const handleVoucherSubmit = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:4010/api/voucher/getvoucher/${localStorage.getItem(
+          "restaurant_id"
+        )}`
+      );
+      const voucher = response.data[0];
+      console.log(voucher.minimumAmount);
+      const currentDate = new Date();
+      const expiryDate = new Date(voucher.expiryDate);
+      const userId = localStorage.getItem("user_id");
+      const user = voucher.users.find((user) => user.user_id === userId);
+
+      if (voucher.code.toLowerCase() === voucherCode.toLowerCase()) {
+        if (currentDate > expiryDate) {
+          setVoucherMessage("The voucher is out of date.");
+        } else if (user.usage >= voucher.maxUsage) {
+          setVoucherMessage(
+            "You have reached the maximum usage for this voucher."
+          );
+        } else if (totalPrice < voucher.minimumAmount) {
+          setVoucherMessage(
+            "Minimum Order Amount is BDT " + voucher.minimumAmount
+          );
+        } else {
+          setVoucherMessage("Voucher Applied Successfully");
+          setVoucherError("");
+          setVoucherCode("");
+          // Calculate discounted total price
+          const discountedTotalPrice =
+            totalPrice * ((100 - voucher.discount) / 100);
+
+          // setDiscounted from voucher to local storage
+          setIsVoucherApplied(true);
+          localStorage.setItem("discount", voucher.discount.toString());
+
+          setShowVoucherModal(false);
+          user.usage += 1;
+          await axios.put(
+            `http://localhost:4010/api/voucher/updatevoucher/${voucher._id}`,
+            {
+              users: voucher.users,
+            }
+          );
+        }
+      } else {
+        setVoucherMessage("This voucher does not exist.");
+      }
+    } catch (error) {
+      console.error(error);
+      setVoucherMessage("Failed to apply voucher. Please try again later.");
+    }
+  };
+
   return (
     <div>
       <div>
@@ -267,6 +389,7 @@ export const MyCart = () => {
                         handleIncreaseQuantity={handleIncreaseQuantity}
                         handleDecreaseQuantity={handleDecreaseQuantity}
                         handleDeleteQuantity={handleDeleteQuantity}
+                        handleVoucherRemove={handleVoucherRemove}
                       />
                     </div>
                   ))}
@@ -284,6 +407,70 @@ export const MyCart = () => {
                   >
                     Review Payment Method
                   </button>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {isVoucherApplied ? (
+                    <button
+                      onClick={handleVoucherRemove}
+                      className="btn btn-md float-end btn-danger"
+                      //style={{ backgroundColor: "#ff8a00", color: "white" }}
+                    >
+                      Remove Voucher
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowVoucherModal(true)}
+                      className="btn btn-md float-end"
+                      style={{ backgroundColor: "#ff8a00", color: "white" }}
+                    >
+                      Add a Voucher
+                    </button>
+                  )}
+                  {/* Modal for entering voucher code */}
+                  <Modal
+                    show={showVoucherModal}
+                    onHide={() => setShowVoucherModal(false)}
+                    dialogClassName="modal-sm" // Use Bootstrap's small modal size
+                  >
+                    <Modal.Header closeButton>
+                      <Modal.Title>Enter Voucher Code</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      {/* Input field for voucher code */}
+                      <input
+                        type="text"
+                        value={voucherCode}
+                        onChange={(e) => setVoucherCode(e.target.value)}
+                        className="w-100" // Make the input field take up the full width of the modal
+                      />
+                      {/* Display error message, if any */}
+                      {voucherError && <div>{voucherError}</div>}
+                    </Modal.Body>
+                    <Modal.Footer className="justify-content-center">
+                      {" "}
+                      {/* Center the button */}
+                      {/* Button to submit voucher code */}
+                      <Button
+                        className="btn btn-md"
+                        style={{
+                          backgroundColor: "#ff8a00",
+                          color: "white",
+                          border: "none",
+                        }}
+                        onClick={handleVoucherSubmit}
+                      >
+                        Submit
+                      </Button>
+                    </Modal.Footer>
+                  </Modal>
                 </div>
               </div>
             ) : (
@@ -314,7 +501,7 @@ export const MyCart = () => {
               <div className="modal-dialog">
                 <div className="modal-content">
                   <div className="modal-header">
-                  <h5 className="text-center"> Choose Payment Method</h5>
+                    <h5 className="text-center"> Choose Payment Method</h5>
                   </div>
                   <div className="modal-body">
                     <div className="form-check">
@@ -392,7 +579,14 @@ export const MyCart = () => {
                   </div>
 
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-sm" data-bs-dismiss="modal" aria-label="Close" style={{ backgroundColor: "#ff8a00", color: "white"}} onClick={handleOrder}>
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                      style={{ backgroundColor: "#ff8a00", color: "white" }}
+                      onClick={handleOrder}
+                    >
                       Place Order
                     </button>
                   </div>
@@ -403,7 +597,24 @@ export const MyCart = () => {
           {foodItems.length > 0 ? <Footer /> : <div></div>}
         </div>
       </div>
+      <Modal
+        show={!!voucherMessage} // Show the modal if there is a voucher message
+        onHide={() => setVoucherMessage("")} // Hide the modal and clear the message when the modal is closed
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Voucher Message</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{voucherMessage}</Modal.Body>
+        <Modal.Footer>
+          <Button
+            className="btn btn-md"
+            style={{ backgroundColor: "#ff8a00", color: "white" }}
+            onClick={() => setVoucherMessage("")} // Clear the message when the button is clicked
+          >
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
-}
-
+};
