@@ -43,6 +43,7 @@ export const Login = () => {
       alert(errors.join("\n"));
       return;
     }
+    
 
     const response = await axios.post("http://localhost:4010/api/userauth/login", {
         email: credentials.email,
@@ -50,7 +51,7 @@ export const Login = () => {
     
     });
 
-    console.log(response.data.success)
+    console.log(response.data)
 
     if (!response.data.success) {
       alert("Invalid credentials");
@@ -80,7 +81,7 @@ export const Login = () => {
         }}
       >
         <Form onSubmit={handleSubmit}>
-          <h1 className="text-center mt-4">Log in</h1>
+          <h1 className="text-center mt-4">Sign in-User</h1>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control
