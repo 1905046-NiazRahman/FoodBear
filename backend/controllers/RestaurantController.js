@@ -539,7 +539,3 @@ module.exports = {
   getSpecificOfferedFoodForSpecificRestaurant,
   addOfferFoodCategory,
 };
-1
-2
-3
-4
