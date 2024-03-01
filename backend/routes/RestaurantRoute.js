@@ -2,14 +2,15 @@ const express = require("express")
 const router = express.Router()
 const controllers= require("../controllers/RestaurantController")
 
+
+
+
 router.route("/signup")
         .post(controllers.signupRestaurant)
 router.route("/login")
         .post(controllers.loginRestaurant)
 router.route("/dashboard")
       .get(controllers.showDashboard)
-router.route("/statistics")
-      .get(controllers.showStatistics)      
 router.route("/isopen/:restaurantId")
       .put(controllers.toggleRestaurantOpen)
 router.route("/foods")
@@ -35,5 +36,23 @@ router.route("/:id/ratings")
 router.route("/:restaurantId")
       .get(controllers.getSpecificRestaurant)
 
+router.route("/rating/:restaurantId/:userId")
+      .get(controllers.getSpecificUserRatingForSpecificRestaurant)
+
+
+      
+
+router.route("/offer/:restaurantId/:foodId")
+      .post(controllers.addOfferedFood)
+      .delete(controllers.removeOfferedFood)
+      .put(controllers.editOfferedFood)
+      .get(controllers.getSpecificOfferedFoodForSpecificRestaurant)
+router.route("/offer/:restaurantId")
+      .get(controllers.getSpecificRestaurantOfferedFood)
+router.route("/offer/offerfoodcategory")
+      .post(controllers.addOfferFoodCategory)
+
+// router.route("/offer/getoffercatagory")
+//       .get(controllers.findCatagory)
 
 module.exports = router;

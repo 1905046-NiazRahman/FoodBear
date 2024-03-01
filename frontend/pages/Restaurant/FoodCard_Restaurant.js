@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Form } from "react-bootstrap";
+import axios from "axios";
 
 export default function (props) {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [discountPercentage, setDiscountPercentage] = useState(0);
   const handleDelete = () => {
     setShowConfirmModal(true);
   };
-
+  let percentage = 0
   const confirmDelete = async () => {
     try {
       const response = await fetch(
@@ -15,6 +17,7 @@ export default function (props) {
           method: "DELETE",
         }
       );
+      const response2 = await axios.delete(`http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`);
 
       if (response.status === 200) {
         window.location.href = "/restaurant/foods";
@@ -57,6 +60,17 @@ export default function (props) {
           body: JSON.stringify(editedFood),
         }
       );
+      
+
+      const percentage =  (await axios.get(`http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`)).data.discountPercentage;
+      const response2 = await axios.put(`http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`, {
+        foodItemName: editedFood.name,
+        mainPrice: editedFood.price,
+        offeredPrice: editedFood.price - (editedFood.price * percentage) / 100,
+        img: editedFood.img
+      })
+
+      console.log(response2.data)
 
       if (response.status === 200) {
         // Close the modal after successful edit
@@ -123,16 +137,20 @@ export default function (props) {
         {
           method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ inStock: !isInStock }) // Toggle the stock status before sending
+          body: JSON.stringify({ inStock: !isInStock }), // Toggle the stock status before sending
         }
       );
 
       if (response.status === 200) {
-        console.log("Stock Out status and restaurant is_open field updated successfully");
+        console.log(
+          "Stock Out status and restaurant is_open field updated successfully"
+        );
       } else {
-        console.log("Failed to update Stock Out status and restaurant is_open field");
+        console.log(
+          "Failed to update Stock Out status and restaurant is_open field"
+        );
       }
     } catch (error) {
       console.error("Error updating Stock Out status:", error);
@@ -162,13 +180,50 @@ export default function (props) {
       // This would be similar to the fetch request in handleEditSubmit
       // Include the new offer data in the request body
       console.log("Adding offer:", newOffer);
+      setDiscountPercentage(newOffer.discount);
+      const response = await axios.post(
+        `http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`,
+        {
+          foodItemName: props.name,
+          img: props.img,
+          offeredCatagoryName: newOffer.offercatagory,
+          mainPrice: props.price,
+          offeredPrice: props.price - (props.price * newOffer.discount) / 100,
+          is_instock: true,
+        }
+      );
+
+      const response2 = await axios.post("http://localhost:4010/api/restaurant/offer/offerfoodcategory", {
+        CategoryName: newOffer.offercatagory
+      })
+
+      console.log(response.data);
+
       // After successfully adding the offer, close the modal
       setShowAddOfferModal(false);
+      window.location.reload();
     } catch (error) {
+      setShowAddOfferModal(false);
+      window.location.reload();
       console.error("Error adding offer:", error);
     }
   };
 
+  //Delete offer
+  const handleDeleteOffer = async () => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`
+      );
+
+      console.log(response.data);
+
+      // Reload the page
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting offer:", error);
+    }
+  };
 
   return (
     <div>
@@ -190,51 +245,74 @@ export default function (props) {
         >
           <h6 className="card-title">{props.name}</h6>
 
-          <div className="h-100 fs-6">Tk {props.price}</div>
+          <div className="h-100 fs-6">
+            {props.isDiscounted ? (
+              <>
+                Offer {Math.floor(props.discountPercentage)}% <br></br> Real Price {props.discountPercentage}
+              </>
+              
+            ) : (
+              `Tk ${props.price}`
+            )}
+          </div>
 
-          <div className="form-check form-switch mt-2">
+          {!props.isDiscounted && (<div className="form-check form-switch mt-2">
             <input
               className="form-check-input"
-              style={{ cursor: "pointer", backgroundColor: isInStock ? "transparent" : "#ff8a00" }}
+              style={{
+                cursor: "pointer",
+                backgroundColor: isInStock ? "transparent" : "#ff8a00",
+              }}
               type="checkbox"
               id={`stockout-${props._id}`}
               checked={!isInStock} // Use the state variable here
               onChange={handleStockOutToggle} // Toggle the status when the checkbox is changed
             />
-            <label
-              className="stockout-label"
-              htmlFor={`stockout-${props._id}`}
-            >
+            <label className="stockout-label" htmlFor={`stockout-${props._id}`}>
               Stock Out
             </label>
-          </div>
+          </div>)}
 
-          <div className="d-flex flex-row justify-content-end mt-3">
-            <button
-              type="button"
-              className="btn btn-outline-danger btn-sm"
-              style={{ marginRight: "10px" }}
-              onClick={handleDelete}
-            >
-              Delete
-            </button>
+          <div className="d-flex flex-row justify-content mt-1">
+            {!props.isDiscounted && (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-outline-danger btn-sm"
+                  style={{ marginRight: "10px" }}
+                  onClick={handleDelete}
+                >
+                  Delete
+                </button>
 
-            <button
-              type="button"
-              className="btn btn-outline-success btn-sm mr-2"
-              onClick={() => setShowEditModal(true)}
-            >
-              Edit
-            </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-success btn-sm mr-2"
+                  onClick={() => setShowEditModal(true)}
+                >
+                  Edit
+                </button>
+              </>
+            )}
 
-            <button
-              type="button"
-              className="btn btn-outline-success btn-sm mr-4"
-              style={{ marginLeft: "25px" }}
-              onClick={() => setShowAddOfferModal(true)}
-            >
-              Add Offer
-            </button>
+            {!props.isAddedToOffer && (
+              <button
+                type="button"
+                className={`btn btn-sm mr-4 ${
+                  props.isDiscounted
+                    ? "btn-outline-danger"
+                    : "btn-outline-success"
+                }`}
+                style={{ marginLeft: props.isDiscounted ? "1px" : "15px" }}
+                onClick={() =>
+                  props.isDiscounted
+                    ? handleDeleteOffer()
+                    : setShowAddOfferModal(true)
+                }
+              >
+                {props.isDiscounted ? "Remove Offer" : "Add Offer"}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -375,15 +453,17 @@ export default function (props) {
           <div className="modal-dialog" role="document">
             <div className="modal-content">
               <div className="modal-header">
-                <h3 className="modal-title" id="AddOfferModalLabel">Add Offer</h3>
+                <h3 className="modal-title" id="AddOfferModalLabel">
+                  Add Offer
+                </h3>
               </div>
               <div className="modal-body">
                 <Form>
                   <Form.Group className="mb-3" controlId="offercatagory">
-                    <Form.Label>Offer Catagory</Form.Label>
+                    <Form.Label>Catagory</Form.Label>
                     <Form.Control
                       type="text"
-                      placeholder="Offer Catagory"
+                      placeholder="Offer/Promotional Campaign Name"
                       name="offercatagory"
                       value={newOffer.offercatagory}
                       onChange={handleAddOfferChange}
@@ -409,6 +489,7 @@ export default function (props) {
                 >
                   Cancel
                 </button>
+
                 <button
                   type="button"
                   className="btn btn-success btn-sm"

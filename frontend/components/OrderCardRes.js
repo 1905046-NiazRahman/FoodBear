@@ -1,11 +1,12 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Modal, Button } from "react-bootstrap";
 
 export default function FoodCard_Restaurant(props) {
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false); // State for showing the modal
   const [dpName, setDpName] = useState("");
+
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -143,10 +144,23 @@ export default function FoodCard_Restaurant(props) {
 
     if (eligibleDeliveryPersons.length > 0) {
       const selectedDeliveryPerson = eligibleDeliveryPersons[0];
+
+      // Post the location of the selected delivery person
+      axios
+        .post("http://localhost:4010/api/distance/currentDp/setLocation", {
+          dpLat: selectedDeliveryPerson.latitude,
+          dpLng: selectedDeliveryPerson.longitude,
+        })
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.error("Error posting location data", error);
+        });
+
       dp_id = selectedDeliveryPerson._id;
       setShowModal(true);
       setDpName(selectedDeliveryPerson.name);
-
     } else {
       // If no eligible delivery person found, show modal with message
       setShowModal(true);
@@ -207,7 +221,7 @@ export default function FoodCard_Restaurant(props) {
               );
 
               if (orderedFood) {
-                const subtotal = orderedFood.quantity * food.price;
+                const subtotal = props.total_price;
 
                 return (
                   <div className="row">
@@ -303,4 +317,3 @@ export default function FoodCard_Restaurant(props) {
     </div>
   );
 }
-
