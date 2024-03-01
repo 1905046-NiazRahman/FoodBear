@@ -39,4 +39,7 @@ router.route("/favorites/:userId")
 router.route("/updateLocation/:userId")
       .put(controllers.updateUserLocation)
 
+// router.route("/getallusers")
+//       .get(controllers.getAllUsers)
+
 module.exports = router; 
