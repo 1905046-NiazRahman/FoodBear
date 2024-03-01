@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const OrderModel= require("../models/OrderModel")
 const FoodModel= require("../models/FoodModel")
+const OfferFoodCategoryModel = require("../models/OfferFoodCatagory")
 
 const getFoods = async(req,res)=>{
     const foodId = req.params.foodId;
@@ -32,7 +33,7 @@ const placeUserOrder = async(req,res)=>{
       total_price: req.body.total_price,
       payment_method: req.body.payment_method,
     });
-    console.log("in temp",temp)
+    //console.log("in temp",temp)
     res.json({ message: "New order placed!" });
   } catch (error) {
     console.log(error);
@@ -66,7 +67,7 @@ const getUserOrder = async(req,res)=>{
     }
 
     // Send the orders as a response
-    console.log(orders)
+    //console.log(orders)
     res.send(orders);
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -181,6 +182,38 @@ const deliverOrder = async(req,res)=>{
   }
 }
 
+//this should not be here,but i had to keep it here as it was not working in the restaurant route
+const findCatagory = async(req,res)=>{
+  
+  try {
+    const foodCategory = await OfferFoodCategoryModel.find({});
+    res.status(200).json(foodCategory);
+  }
+  catch (error) {
+    console.log("error in getting food category");
+    res.json({ message: "food category not found!" });
+  }
+}
+
+const getAllOrders = async(req,res)=>{
+  try {
+    // Find all orders
+    const orders = await OrderModel.find({});
+
+    if (!orders) {
+      return res
+        .json({ message: "No orders found." });
+    }
+
+    // Send the orders as a response
+    res.send(orders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+}
+
 module.exports={
     getFoods,
     placeUserOrder,
@@ -191,5 +224,7 @@ module.exports={
     getSpecificRestaurantOrder,
     getAllOrderofSpecificDpPerson,
     handlePickupOrder,
-    deliverOrder
+    deliverOrder,
+    findCatagory,
+    getAllOrders
 }

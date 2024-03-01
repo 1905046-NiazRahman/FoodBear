@@ -3,6 +3,8 @@ const FoodCategoryModel = require("../models/FoodCatagoryModel");
 const FoodModel = require("../models/FoodModel");
 const UserModel = require("../models/UserModel");
 const DeliveryPersonModel = require("../models/DeliveryPersonModel");
+const OfferedFoodModel = require("../models/OfferedFoodModel");
+const OfferFoodCategoryModel = require("../models/OfferFoodCatagory");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const jwtSecret =
@@ -99,20 +101,6 @@ const showDashboard = async (req, res) => {
     res.status(200).send(restaurants);
   } catch (err) {
     console.log("error getting dashboard");
-    res.status(404).json({
-      success: false,
-    });
-  }
-};
-
-const showStatistics = async (req, res) => {
-  try {
-
-    const restaurants = await RestaurantModel.find({});  //error
-
-    res.status(200).send(restaurants);
-  } catch (err) {
-    console.log("error getting Statistics");
     res.status(404).json({
       success: false,
     });
@@ -385,13 +373,151 @@ const getSpecificRestaurant = async(req,res)=>{
   }
 }
 
+const getSpecificUserRatingForSpecificRestaurant = async (req, res) => {
+  const { restaurantId, userId } = req.params;
+  
+
+  try {
+    // Find the restaurant by ID
+    const restaurant = await RestaurantModel.findById(restaurantId);
+
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    
+    // Find the user's rating in the restaurant's ratings array
+    const userRating = restaurant.ratings.find(rating => rating.user.toString() === userId);
+  
+
+    if (!userRating) {
+      return res.status(404).json({ message: 'User rating not found for this restaurant' });
+    }
+
+    // Return the user's rating
+    res.json({ rating: userRating.rating });
+  } catch (error) {
+    console.error('Error fetching user rating:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const addOfferedFood = async (req, res) => {
+   const { restaurantId, foodId } = req.params;
+   const { foodItemName,img,offeredCatagoryName,mainPrice,offeredPrice,is_instock } = req.body; 
+   
+   try {
+    const offeredFood = await OfferedFoodModel.create({
+      foodId: foodId,
+      restaurant_id: restaurantId,
+      foodItemName: foodItemName,
+      img: img,
+      offeredCatagoryName: offeredCatagoryName,
+      mainPrice: mainPrice,
+      offeredPrice: offeredPrice,
+      discountPercentage: ((mainPrice - offeredPrice) / mainPrice) * 100,
+      is_instock: is_instock,
+    });
+    
+    res.status(200).json(offeredFood);  
+  }
+  catch (error) {
+    console.log(error.message);
+    console.log("error in adding offered food");
+    res.json({ message: "offered food not added!" });
+  }
+}
+
+const removeOfferedFood = async (req, res) => {
+  const { restaurantId, foodId } = req.params;
+  try {
+    const removedOfferedFood = await OfferedFoodModel.findOneAndDelete({ foodId: foodId, restaurant_id: restaurantId });
+    if (!removedOfferedFood) {
+      return res.status(404).json({ message: 'Offered food not found' });
+    }
+    res.status(200).json(removedOfferedFood);
+  } catch (error) {
+    console.log("error in removing offered food");
+    res.json({ message: "offered food not removed!" });
+  }
+}
+
+const getSpecificRestaurantOfferedFood = async (req, res) => {
+   const { restaurantId } = req.params;
+    try {
+      const offeredFood = await OfferedFoodModel.find({ restaurant_id: restaurantId });
+      res.status(200).json(offeredFood);
+    }
+    catch (error) {
+      console.log("error in getting offered food");
+      res.json({ message: "offered food not found!" });
+    }
+}
+
+const editOfferedFood = async (req, res) => {
+  try {
+    const { foodId } = req.params;
+    const updatedData = req.body;
+
+    // Find the food item by custom ID and update its data
+    const updatedFood = await OfferedFoodModel.findOneAndUpdate({ foodId: foodId }, updatedData, {
+      new: true,
+    });
+
+    if (!updatedFood) {
+      return res.status(404).json({ message: "Food item not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Food item updated successfully", updatedFood });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error updating food item" });
+  }
+};
+
+const getSpecificOfferedFoodForSpecificRestaurant = async(req,res)=>{
+    const { restaurantId, foodId } = req.params;
+    try {
+      const offeredFood = await OfferedFoodModel.findOne({ restaurant_id: restaurantId, foodId: foodId });
+      res.status(200).json(offeredFood);
+    }
+    catch (error) {
+      console.log("error in getting offered food");
+      
+      res.json({ message: "offered food not found!" });
+    }
+}
+
+const addOfferFoodCategory = async (req, res) => {
+  try {
+    const { CategoryName } = req.body;
+
+    // Check if the food category already exists
+    const existingCategory = await OfferFoodCategoryModel.findOne({ CategoryName });
+
+    if (existingCategory) {
+      return res.status(400).json({ message: "Food category already exists" });
+    }
+
+    // Create a new food category
+    const category = await OfferFoodCategoryModel.create({ CategoryName });
+
+    res.status(200).json(category);
+  } catch (error) {
+    console.log("error in adding food category");
+    res.json({ message: "food category not added!" });
+  }
+}
+
+
 
 
 module.exports = {
   signupRestaurant,
   loginRestaurant,
   showDashboard,
-  showStatistics,
   toggleRestaurantOpen,
   getAllFood,
   addFood,
@@ -405,4 +531,11 @@ module.exports = {
   setUserReview,
   getSpecificRestaurantRating,
   getSpecificRestaurant,
+  getSpecificUserRatingForSpecificRestaurant,
+  addOfferedFood,
+  removeOfferedFood,
+  getSpecificRestaurantOfferedFood,
+  editOfferedFood,
+  getSpecificOfferedFoodForSpecificRestaurant,
+  addOfferFoodCategory,
 };
