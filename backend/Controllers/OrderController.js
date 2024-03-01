@@ -140,7 +140,7 @@ const getAllOrderofSpecificDpPerson = async (req, res) => {
       return res.json([]);
     }
 
-    
+    // Send the orders as a response
     res.send(orders);
   } catch (error) {
     console.error("Error fetching orders:", error);
