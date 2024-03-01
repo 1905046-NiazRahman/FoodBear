@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const controllers= require("../controllers/OrderController")
+const controllers2= require("../controllers/OrderReviewController")
 //user order portion
 router.route("/user/orders/neworder")
       .post(controllers.placeUserOrder)
@@ -30,5 +31,18 @@ router.route("/deliveryperson/orders/pickeduporder/:orderId")
       .put(controllers.handlePickupOrder)
 router.route("/deliveryperson/orders/deliveredorder/:orderId")
       .put(controllers.deliverOrder)
+
+router.route("/all/getAllOrders")
+      .get(controllers.getAllOrders)
+
+router.route("/orderReview/addOrderReview")
+      .post(controllers2.createOrderReview)
+
+router.route("/orderReview/getOrderReview/:userId/:restaurantId/:orderId")
+      .get(controllers2.getOrderReview)
+
+//this should not be here,but i had to keep it here as it was not working in the restaurant route
+router.route("/offer/getoffercatagory")
+      .get(controllers.findCatagory)
 
 module.exports = router;
