@@ -34,7 +34,7 @@ const OrderSchema = new Schema({
     // Status of the order
     status: {
         type: String,
-        enum: ["pending", "confirmed", "picked_up", "delivered"], // Use enum to restrict values
+        enum: ["pending", "confirmed", "picked_up", "delivered","preordered"], // Use enum to restrict values
         default: "pending" // Default status when an order is created
     },
 
@@ -52,7 +52,16 @@ const OrderSchema = new Schema({
     total_price: {
         type: Number,
         required: true
+    },
+
+    //for homekitchen only
+    selectedTime:{
+        type: String,
+    },
+    selectedDay:{
+        type: String,
     }
+    
 });
 
 module.exports = mongoose.model("order", OrderSchema);
