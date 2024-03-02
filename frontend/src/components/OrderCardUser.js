@@ -238,6 +238,12 @@ export default function FoodCard_Restaurant(props) {
                             >
                               Preordered
                             </span>
+                            <span
+                              className="badge bg-info text-white badge-lg"
+                              style={{ alignSelf: "flex-start" ,marginTop:"10px"}}
+                            >
+                              {props.selectedDay} at {props.selectedTime}
+                            </span>
                           </h5>
                         )
                       }
