@@ -2,9 +2,6 @@ const express = require("express")
 const router = express.Router()
 const controllers= require("../controllers/RestaurantController")
 
-
-
-
 router.route("/signup")
         .post(controllers.signupRestaurant)
 router.route("/login")
@@ -40,8 +37,6 @@ router.route("/rating/:restaurantId/:userId")
       .get(controllers.getSpecificUserRatingForSpecificRestaurant)
 
 
-      
-
 router.route("/offer/:restaurantId/:foodId")
       .post(controllers.addOfferedFood)
       .delete(controllers.removeOfferedFood)
@@ -54,5 +49,9 @@ router.route("/offer/offerfoodcategory")
 
 // router.route("/offer/getoffercatagory")
 //       .get(controllers.findCatagory)
+
+router.route("/homekitchen/:restaurant_id")
+      .get(controllers.getRestaurantInfo)
+
 
 module.exports = router;
