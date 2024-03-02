@@ -7,6 +7,7 @@ const OfferedFoodModel = require("../models/OfferedFoodModel");
 const OfferFoodCategoryModel = require("../models/OfferFoodCatagory");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const OrderModel = require("../models/OrderModel");
 const jwtSecret =
   "EverythinginthisworldisChaoticthereisnomeaningofLifewehavetojustcreateit";
 
@@ -163,6 +164,11 @@ const addFood = async (req, res) => {
       CategoryName: req.body.CategoryName,
       price: req.body.price,
       img: req.body.img,
+
+      daysOfWeek: req.body.daysOfWeek, // added field daysOfWeek homekitchen
+      startTime: req.body.startTime, // added field homekitchen
+      endTime: req.body.endTime, // added field homekitchen
+      minOrder: req.body.minOrder, // added field homekitchen
     });
     res.json({ message: "New food added!" });
   } catch (error) {
@@ -511,6 +517,17 @@ const addOfferFoodCategory = async (req, res) => {
   }
 }
 
+const getRestaurantInfo = async (req, res) => {
+  try {
+    const restaurant = await RestaurantModel.findById(req.params.restaurant_id);
+    res.status(200).json(restaurant);
+  } catch (error) {
+    console.log("error in getting restaurant info");
+    res.json({ message: "restaurant info not found!" });
+  }
+}
+
+
 
 
 
@@ -538,24 +555,5 @@ module.exports = {
   editOfferedFood,
   getSpecificOfferedFoodForSpecificRestaurant,
   addOfferFoodCategory,
+  getRestaurantInfo,
 };
-1
-2
-3
-4
-3
-4
-5
-6
-8
-9
-10
-11
-9
-8
-9
-9
-0
-9
-9
-9
