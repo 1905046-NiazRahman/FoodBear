@@ -148,6 +148,8 @@ const sortedCompletedOrders = completedOrders.sort((a, b) => new Date(b.date) - 
                       total_price={order.total_price}
                       date={order.date}
                       payment_method={order.payment_method}
+                      selectedTime={order.selectedTime}
+                      selectedDay={order.selectedDay}
                     />
                   </div>
                 ))}

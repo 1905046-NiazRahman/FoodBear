@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import axios from "axios";
 
 export default function (props) {
@@ -8,7 +8,7 @@ export default function (props) {
   const handleDelete = () => {
     setShowConfirmModal(true);
   };
-  let percentage = 0
+  let percentage = 0;
   const confirmDelete = async () => {
     try {
       const response = await fetch(
@@ -17,7 +17,12 @@ export default function (props) {
           method: "DELETE",
         }
       );
-      const response2 = await axios.delete(`http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`);
+
+      if (props.isDiscounted) {
+        const response2 = await axios.delete(
+          `http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`
+        );
+      }
 
       if (response.status === 200) {
         window.location.href = "/restaurant/foods";
@@ -42,11 +47,30 @@ export default function (props) {
     CategoryName: props.CategoryName,
     price: props.price,
     img: props.img,
+    startTime: props.startTime,
+    endTime: props.endTime,
+    minOrder: props.minOrder,
+    daysOfWeek: props.daysOfWeek || [], // added field daysOfWeek
   });
 
   const handleEditChange = (event) => {
-    setEditedFood({ ...editedFood, [event.target.name]: event.target.value });
+    const { name, value, type, checked } = event.target;
+  
+    if (type === 'checkbox' && name === 'daysOfWeek') {
+      setEditedFood(prevFood => {
+        if (checked) {
+          // Add the day to the array if it's not already included
+          return { ...prevFood, daysOfWeek: [...prevFood.daysOfWeek, value] };
+        } else {
+          // Remove the day from the array
+          return { ...prevFood, daysOfWeek: prevFood.daysOfWeek.filter(day => day !== value) };
+        }
+      });
+    } else {
+      setEditedFood(prevFood => ({ ...prevFood, [name]: value }));
+    }
   };
+  
 
   const handleEditSubmit = async () => {
     try {
@@ -60,17 +84,27 @@ export default function (props) {
           body: JSON.stringify(editedFood),
         }
       );
-      
 
-      const percentage =  (await axios.get(`http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`)).data.discountPercentage;
-      const response2 = await axios.put(`http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`, {
-        foodItemName: editedFood.name,
-        mainPrice: editedFood.price,
-        offeredPrice: editedFood.price - (editedFood.price * percentage) / 100,
-        img: editedFood.img
-      })
+      setShowEditModal(false);
+      window.location.href = "/restaurant/foods";
 
-      console.log(response2.data)
+      const percentage = (
+        await axios.get(
+          `http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`
+        )
+      ).data.discountPercentage;
+      const response2 = await axios.put(
+        `http://localhost:4010/api/restaurant/offer/${props.restaurant_id}/${props._id}`,
+        {
+          foodItemName: editedFood.name,
+          mainPrice: editedFood.price,
+          offeredPrice:
+            editedFood.price - (editedFood.price * percentage) / 100,
+          img: editedFood.img,
+        }
+      );
+
+      console.log(response2.data);
 
       if (response.status === 200) {
         // Close the modal after successful edit
@@ -193,9 +227,12 @@ export default function (props) {
         }
       );
 
-      const response2 = await axios.post("http://localhost:4010/api/restaurant/offer/offerfoodcategory", {
-        CategoryName: newOffer.offercatagory
-      })
+      const response2 = await axios.post(
+        "http://localhost:4010/api/restaurant/offer/offerfoodcategory",
+        {
+          CategoryName: newOffer.offercatagory,
+        }
+      );
 
       console.log(response.data);
 
@@ -225,6 +262,31 @@ export default function (props) {
     }
   };
 
+  const [restaurant, setRestaurant] = useState(null);
+  useEffect(() => {
+    const fetchRestaurant = async () => {
+      const response = await axios.get(
+        `http://localhost:4010/api/restaurant/homekitchen/${props.restaurant_id}`
+      );
+      console.log(response.data);
+      setRestaurant(response.data);
+    };
+    fetchRestaurant();
+  }, [props.restaurant_id]);
+
+  const [food, setFood] = useState(null);
+  useEffect(() => {
+    const fetchFood = async () => {
+      console.log(props._id, "food id");
+      const response = await axios.get(
+        `http://localhost:4010/api/order/homekitchen/${props._id}`
+      );
+      console.log(response.data, "fetchedddd foood");
+      setFood(response.data);
+    };
+    fetchFood();
+  }, []);
+
   return (
     <div>
       <div
@@ -248,30 +310,43 @@ export default function (props) {
           <div className="h-100 fs-6">
             {props.isDiscounted ? (
               <>
-                Offer {Math.floor(props.discountPercentage)}% <br></br> Real Price {props.discountPercentage}
+                <del>Tk {props.price}</del> Tk {Math.floor(props.offeredPrice)}
               </>
-              
             ) : (
               `Tk ${props.price}`
             )}
           </div>
 
-          {!props.isDiscounted && (<div className="form-check form-switch mt-2">
-            <input
-              className="form-check-input"
-              style={{
-                cursor: "pointer",
-                backgroundColor: isInStock ? "transparent" : "#ff8a00",
-              }}
-              type="checkbox"
-              id={`stockout-${props._id}`}
-              checked={!isInStock} // Use the state variable here
-              onChange={handleStockOutToggle} // Toggle the status when the checkbox is changed
-            />
-            <label className="stockout-label" htmlFor={`stockout-${props._id}`}>
-              Stock Out
-            </label>
-          </div>)}
+          {restaurant && restaurant.is_homekitchen && (
+            <>
+              <div>
+                Available from {props.startTime} to {props.endTime}
+              </div>
+              <div>Minimum order: {props.minOrder}</div>
+            </>
+          )}
+
+          {!props.isDiscounted && (
+            <div className="form-check form-switch mt-2">
+              <input
+                className="form-check-input"
+                style={{
+                  cursor: "pointer",
+                  backgroundColor: isInStock ? "transparent" : "#ff8a00",
+                }}
+                type="checkbox"
+                id={`stockout-${props._id}`}
+                checked={!isInStock} // Use the state variable here
+                onChange={handleStockOutToggle} // Toggle the status when the checkbox is changed
+              />
+              <label
+                className="stockout-label"
+                htmlFor={`stockout-${props._id}`}
+              >
+                Stock Out
+              </label>
+            </div>
+          )}
 
           <div className="d-flex flex-row justify-content mt-1">
             {!props.isDiscounted && (
@@ -416,6 +491,63 @@ export default function (props) {
                       onChange={handleEditChange}
                     />
                   </Form.Group>
+
+                  {restaurant && restaurant.is_homekitchen && (
+                    <>
+                      <Form.Group controlId="daysOfWeek">
+                        <Form.Label>Days of Week</Form.Label>
+                        {[
+                          "Sunday",
+                          "Monday",
+                          "Tuesday",
+                          "Wednesday",
+                          "Thursday",
+                          "Friday",
+                          "Saturday",
+                        ].map((day, index) => (
+                          <Form.Check
+                            type="checkbox"
+                            label={day}
+                            name="daysOfWeek"
+                            value={day}
+                            checked={editedFood.daysOfWeek.includes(day)}
+                            onChange={handleEditChange}
+                            key={index}
+                          />
+                        ))}
+                      </Form.Group>
+
+                      <Form.Group controlId="formStartTime">
+                        <Form.Label>Start Time</Form.Label>
+                        <Form.Control
+                          type="time"
+                          name="startTime"
+                          value={editedFood.startTime || ""}
+                          onChange={handleEditChange}
+                        />
+                      </Form.Group>
+
+                      <Form.Group controlId="formEndTime">
+                        <Form.Label>End Time</Form.Label>
+                        <Form.Control
+                          type="time"
+                          name="endTime"
+                          value={editedFood.endTime || ""}
+                          onChange={handleEditChange}
+                        />
+                      </Form.Group>
+
+                      <Form.Group controlId="formMinOrder">
+                        <Form.Label>Minimum Order</Form.Label>
+                        <Form.Control
+                          type="number"
+                          name="minOrder"
+                          value={editedFood.minOrder || ""}
+                          onChange={handleEditChange}
+                        />
+                      </Form.Group>
+                    </>
+                  )}
                 </Form>
               </div>
               <div className="modal-footer">
