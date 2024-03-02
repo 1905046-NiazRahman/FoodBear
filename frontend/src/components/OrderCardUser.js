@@ -229,6 +229,18 @@ export default function FoodCard_Restaurant(props) {
                           </span>
                         </h5>
                       )}
+                      {
+                        props.status === "preordered" && (
+                          <h5>
+                            <span
+                              className="badge bg-warning text-white badge-lg"
+                              style={{ alignSelf: "flex-start" }}
+                            >
+                              Preordered
+                            </span>
+                          </h5>
+                        )
+                      }
                       {props.status === "confirmed" && (
                         <h5>
                           <span
