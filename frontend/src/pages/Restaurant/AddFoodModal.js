@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import axios from "axios";
 
@@ -8,10 +8,48 @@ const AddFoodModal = ({ show, onHide, onSubmit }) => {
     CategoryName: "", // Changed to CategoryName
     price: "",
     img: "",
+    startTime: "",
+    endTime: "",
+    minOrder: "",
+    daysOfWeek: [],
   });
 
+  const [restaurant, setRestaurant] = useState(null);
+
+  useEffect(() => {
+    if (show) {
+      const fetchRestaurant = async () => {
+        const restaurant_id = localStorage.getItem("restaurant_id");
+        const response = await axios.get(
+          `http://localhost:4010/api/restaurant/homekitchen/${restaurant_id}`
+        );
+
+        setRestaurant(response.data);
+      };
+      fetchRestaurant();
+    }
+  }, [show]);
+
   const onChange = (e) => {
-    setFood({ ...food, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+
+    if (type === 'checkbox' && name === 'daysOfWeek') {
+      setFood(prevFood => {
+        if (checked) {
+          // Add the day to the array if it's not already included
+          if (!prevFood.daysOfWeek.includes(value)) {
+            return { ...prevFood, daysOfWeek: [...prevFood.daysOfWeek, value] };
+          }
+        } else {
+          // Remove the day from the array
+          return { ...prevFood, daysOfWeek: prevFood.daysOfWeek.filter(day => day !== value) };
+        }
+        // Return the previous state if no changes were made
+        return prevFood;
+      });
+    } else {
+      setFood({ ...food, [name]: value });
+    }
   };
 
   const validateForm = () => {
@@ -54,6 +92,12 @@ const AddFoodModal = ({ show, onHide, onSubmit }) => {
         price: food.price,
         img: food.img,
         restaurant_id: localStorage.getItem("restaurant_id"),
+
+        //for homekitchen only
+        daysOfWeek: food.daysOfWeek,
+        startTime: food.startTime,
+        endTime: food.endTime,
+        minOrder: food.minOrder,
       }
     );
 
@@ -191,6 +235,63 @@ const AddFoodModal = ({ show, onHide, onSubmit }) => {
               onChange={onChange}
             />
           </Form.Group>
+
+          {restaurant && restaurant.is_homekitchen && (
+            <>
+              <Form.Group controlId="daysOfWeek">
+                <Form.Label>Days of Week</Form.Label>
+                {[
+                  "Sunday",
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                ].map((day, index) => (
+                  <Form.Check
+                    type="checkbox"
+                    label={day}
+                    name="daysOfWeek"
+                    value={day}
+                    checked={food.daysOfWeek.includes(day)}
+                    onChange={onChange}
+                    key={index}
+                  />
+                ))}
+              </Form.Group>
+
+              <Form.Group controlId="startTime">
+                <Form.Label>Start Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  name="startTime"
+                  value={food.startTime}
+                  onChange={onChange}
+                />
+              </Form.Group>
+              <Form.Group controlId="endTime">
+                <Form.Label>End Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  name="endTime"
+                  value={food.endTime}
+                  onChange={onChange}
+                />
+              </Form.Group>
+              <Form.Group controlId="minOrder">
+                <Form.Label>Minimum Order Requirement</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Enter minimum order requirement"
+                  name="minOrder"
+                  value={food.minOrder}
+                  onChange={onChange}
+                />
+              </Form.Group>
+            </>
+          )}
+
           <div className="modal-footer">
             <Button variant="success" size="sm" onClick={handleAddSubmit}>
               Add food
