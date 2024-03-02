@@ -28,6 +28,7 @@ app.use('/api/user', require("./routes/UserRoute"));
 app.use('/api/order', require("./routes/OrderRoute"));
 app.use('/api/distance', require("./routes/DistanceRoute"));
 app.use('/api/voucher', require("./routes/VoucherRoute"));
+app.use('/api/homekitchen', require("./routes/HomeKitchenRoute"));
 
 app.listen(PORT,()=>{
     console.log(`PORT NO : ${PORT}`.blue.bold.italic)

@@ -1,5 +1,6 @@
 const VoucherModel = require("../models/VoucherModel"); // Replace with the actual path to your Voucher model
 const UserModel = require("../models/UserModel"); // Replace with the actual path to your User model
+
 const createVoucher = async (req, res) => {
   const { code,minimumAmount, discount, expiryDate,maxUsage,restaurant_id, users } = req.body;
 
@@ -75,10 +76,11 @@ const updatevoucher = async(req,res)=>{
   }
 }
 
+
 module.exports = {
   createVoucher,
   getAllUsers,
   getVoucher,
   deleteVoucher,
-  updatevoucher
+  updatevoucher,
 };

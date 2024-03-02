@@ -45,4 +45,8 @@ router.route("/orderReview/getOrderReview/:userId/:restaurantId/:orderId")
 router.route("/offer/getoffercatagory")
       .get(controllers.findCatagory)
 
+//weired!!!
+router.route("/homekitchen/:foodId")
+      .get(controllers.getFoodForHomeKitchen)
+
 module.exports = router;
