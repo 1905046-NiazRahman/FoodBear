@@ -112,4 +112,4 @@ Enables users to use Google map for searching restaurant.
 When setting up your database connection in `db.js`, make sure to use the following URL:
 
 ```javascript
-const MONGO_URI = "mongodb+srv://rakib047:Rakib22422m@merndb.nlsauhz.mongodb.net/FoodBear?retryWrites=true&w=majority";
+const MONGO_URI = "";
