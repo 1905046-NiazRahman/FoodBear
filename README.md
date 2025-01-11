@@ -1,82 +1,48 @@
-# FoodBear
+# 🐻 FoodBear 🐻
 
 FoodBear is a food delivery website I developed as part of my 4-1 term project for the  CSE-408(Software Development Sessional) course at BUET. It allows users to order food from various restaurants conveniently.
 
 The website is built on the MERN stack, comprising MongoDB, Express.js, React.js, and Node.js. It includes features like location wise restaurant search, menu browsing, cart management,home kitchen,restaurant analytics,order tracking and many more to provide a seamless user experience.
+## 📺 Demo Video
+https://youtu.be/cIPb2VHdnJU?si=2zo6IdjLN_wLxXuO
+## 📋 Features
 
-## Features
+### 🔐 Home Page & Authentication
+- **Account Creation and Login**: Users, Restaurants, and Delivery Personnel can create accounts, log in, and manage their profiles.
+  
+### 🏠 User Homepage
+- **Restaurant Search**: Search for restaurants based on criteria such as location, ratings, and categories.
 
-### Home page and Authentications
+### 🌍 Google Maps Integration
+- **Restaurant Location**: Users can locate nearby restaurants using Google Maps.
 
-Allows users,restaurants and delivery persons to create accounts, log in, and manage their profiles.
-![User Authentication](https://gcdnb.pbrd.co/images/UObLCMd3AKyY.png?o=1)
+### 📖 Menu Browsing
+- **Filter & Sort Menus**: Users can browse restaurant menus with filtering and sorting options for easy discovery.
 
-![User Authentication](https://gcdnb.pbrd.co/images/r9vPHo4di9Dm.png?o=1)
+### 🛒 Cart Management
+- **Manage Cart Items**: Add items to the cart, adjust quantities, and proceed to checkout smoothly.
 
-![User Authentication](https://gcdnb.pbrd.co/images/yZ7Qb4DQ9K96.png?o=1)
+### 🎟️ Voucher System
+- **Apply Discounts**: Users can use vouchers to receive discounts during checkout.
 
-### User Homepage
+### 📦 Order Tracking & Map Integration
+- **Real-Time Order Tracking**: Track order progress, from preparation to delivery, with real-time updates on a map.
 
-Enables users to search for restaurants based on various criteria such as location, and ratings.
+### 🍳 Home Kitchen Feature
+- **Home-Cooked Meals**: Users can order unique, home-cooked meals directly from home chefs.
 
-![Restaurant Search](https://gcdnb.pbrd.co/images/CopJbEddNsLT.png?o=1)
+### ⭐ Order Reviews & Ratings
+- **Leave Feedback**: Users can provide ratings and reviews on their orders and restaurant experiences.
 
-### Integration of Google Map Api
+### 📊 Restaurant Dashboard
+- **Order Management**: Manage incoming orders and update their status in real time.
+- **Menu Management**: Add, edit, or remove menu items easily.
+- **Analytics**: Access performance analytics for business insights.
 
-Enables users to use Google map for searching restaurant.
-![Restaurant Search](https://gcdnb.pbrd.co/images/HfAQon3YOKm1.png?o=1)
+### 🚚 Delivery Person Dashboard
+- **Manage Deliveries**: Delivery personnel can view assigned orders, track delivery routes, and update order statuses.
 
-### Menu Browsing
-
-- Description: Displays restaurant menus with options for filtering and sorting.
-- Image: ![Menu Browsing](images/menu_browsing.png)
-
-### Cart Management
-
-- Description: Allows users to add items to their cart, adjust quantities, and proceed to checkout.
-- Image: ![Cart Management](images/cart_management.png)
-
-### Use Vouchers
-
-- Description: Allows users to add items to their cart, adjust quantities, and proceed to checkout.
-- Image: ![Cart Management](images/cart_management.png)
-
-### Order Tracking and Map integration
-
-- Description: Provides real-time updates on the status of orders, from preparation to delivery.
-- Image: ![Order Tracking](images/order_tracking.png)
-
-### HomeKitchen
-
-- Description: Provides real-time updates on the status of orders, from preparation to delivery.
-- Image: ![Order Tracking](images/order_tracking.png)
-
-### Order Reviews and Ratings
-
-- Description: Provides real-time updates on the status of orders, from preparation to delivery.
-- Image: ![Order Tracking](images/order_tracking.png)
-
-### Restaurant Side Dashboard
-
-- Description: Provides real-time updates on the status of orders, from preparation to delivery.
-- Image: ![Order Tracking](images/order_tracking.png)
-
-### Restaurant Side Menu
-
-- Description: Provides real-time updates on the status of orders, from preparation to delivery.
-- Image: ![Order Tracking](images/order_tracking.png)
-
-### Restaurant Analytics
-
-- Description: Provides real-time updates on the status of orders, from preparation to delivery.
-- Image: ![Order Tracking](images/order_tracking.png)
-
-### Deliveryperson Dashboard
-
-- Description: Provides real-time updates on the status of orders, from preparation to delivery.
-- Image: ![Order Tracking](images/order_tracking.png)
-
-## Installation (Backend)
+## 🔧 Installation (Backend)
 
 1. Clone the repository:
    ```sh
@@ -94,7 +60,7 @@ Enables users to use Google map for searching restaurant.
    ```sh
    npm start
    
-## Installation (Frontend)
+## 🔧 Installation (Frontend)
 
 2. From root directory:
    ```sh
@@ -107,9 +73,9 @@ Enables users to use Google map for searching restaurant.
 4. Start localhost:3000 port(you can run multiple ports):
    ```sh
    npm start
-## Note
+## 📝 Note
 
 When setting up your database connection in `db.js`, make sure to use the following URL:
 
 ```javascript
-const MONGO_URI = "";
+const MONGO_URI = "mongodb+srv://rakib047:Rakib22422m@merndb.nlsauhz.mongodb.net/FoodBear?retryWrites=true&w=majority";
